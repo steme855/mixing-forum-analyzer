@@ -1,3 +1,4 @@
+![CI](https://github.com/steme855/mixing-forum-analyzer/actions/workflows/ci.yml/badge.svg)
 # 🎚 Mixing Forum Analyzer  
 
 > *KI-Demo: Automatische Analyse und Suche nach ähnlichen Mixing-Problemen in Foren-Posts (Kick, Snare, Vocals etc.)*  
@@ -26,7 +27,7 @@
 ## 🚀 Setup (Mac & Linux)
 
 ```bash
-git clone https://github.com/<YOUR_USERNAME>/mixing-forum-analyzer.git
+git clone https://github.com/<steme855>/mixing-forum-analyzer.git
 cd mixing-forum-analyzer
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
