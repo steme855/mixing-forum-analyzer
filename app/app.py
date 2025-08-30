@@ -13,6 +13,11 @@ os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 os.environ["TORCH_SHOW_CPP_STACKTRACES"] = "0"
 os.environ.setdefault("DEBUG_STREAMLIT", "0")
+
+# Suppress noisy logs from transformers/SBERT
+import logging
+logging.getLogger("sentence_transformers").setLevel(logging.ERROR)
+logging.getLogger("transformers").setLevel(logging.ERROR)
 st.set_page_config(page_title="Mixing Forum Analyzer", layout="wide")
 
 st.title("🎛️ Mixing Forum Analyzer — Woche 1 Demo")
@@ -474,29 +479,6 @@ with col1:
             st.dataframe(df, use_container_width=True)
             st.caption(f"⏱️ {mode_label} · Berechnungszeit: {elapsed_ms:.0f} ms")
 
-            # Download JSON (inkl. Presets)
-            try:
-                results_json = {
-                    "schema_version": "1.0",
-                    "query": query,
-                    "expanded_query": q_expanded,
-                    "mode": mode_label,
-                    "elapsed_ms": round(elapsed_ms, 1),
-                    "results": [
-                        {"rank": r+1, "post": corpus[i], "score": round(scored[r][0], 3)}
-                        for r, i in enumerate(top_idx)
-                    ],
-                    "presets": recs,
-                }
-                json_bytes = json.dumps(results_json, ensure_ascii=False, indent=2).encode("utf-8")
-                st.download_button(
-                    "JSON downloaden",
-                    data=json_bytes,
-                    file_name="last_query_results.json",
-                    mime="application/json",
-                )
-            except Exception:
-                pass
 
             # Direct CSV download (in-memory)
             try:
@@ -544,6 +526,30 @@ with col1:
                 st.caption("Bewege den Mauszeiger über einen Vorschlag für kurze Hinweise.")
             else:
                 st.caption("Keine direkten Vorschläge – Formulierung verfeinern (z. B. 'snare boxig', 'bass maskiert kick').")
+
+            # Download JSON (inkl. Presets) – NACHDEM "recs" berechnet wurde
+            try:
+                results_json = {
+                    "schema_version": "1.0",
+                    "query": query,
+                    "expanded_query": q_expanded,
+                    "mode": mode_label,
+                    "elapsed_ms": round(elapsed_ms, 1),
+                    "results": [
+                        {"rank": r + 1, "post": corpus[i], "score": round(scored[r][0], 3)}
+                        for r, i in enumerate(top_idx)
+                    ],
+                    "presets": recs or [],
+                }
+                json_bytes = json.dumps(results_json, ensure_ascii=False, indent=2).encode("utf-8")
+                st.download_button(
+                    "JSON downloaden",
+                    data=json_bytes,
+                    file_name="last_query_results.json",
+                    mime="application/json",
+                )
+            except Exception:
+                pass
 
             # Optionaler Export-Button (sicher: nur wenn df existiert)
             if st.button("Ergebnisse als CSV speichern"):
