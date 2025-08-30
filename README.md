@@ -27,7 +27,7 @@
 ## 🚀 Setup (Mac & Linux)
 
 ```bash
-git clone https://github.com/<steme855>/mixing-forum-analyzer.git
+git clone https://github.com/steme855/mixing-forum-analyzer.git
 cd mixing-forum-analyzer
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
