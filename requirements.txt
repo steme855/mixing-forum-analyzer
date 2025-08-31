@@ -1,15 +1,9 @@
 streamlit==1.38.0
+sentence-transformers==3.0.1
+torch==2.2.2
+spacy==3.7.5
+de-core-news-sm==3.7.0
+scikit-learn==1.5.1
 pandas==2.2.2
 numpy==1.26.4
-spacy==3.7.5
-sentence-transformers==3.0.1
 rapidfuzz==3.9.3
-torch>=2.2.0
-
-# Optional: plotting & ML extras
-matplotlib==3.9.1
-scikit-learn==1.5.1
-jiwer==3.0.4
-
-# spaCy DE model direct wheel (important for HF Spaces)
-https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.7.0/de_core_news_sm-3.7.0-py3-none-any.whl
