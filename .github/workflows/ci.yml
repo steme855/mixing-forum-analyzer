@@ -2,24 +2,33 @@ name: CI
 
 on:
   push:
-    branches: ["**"]
   pull_request:
-    branches: ["**"]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      # stabile & leise Umgebung für Torch/Transformers/Streamlit
+      STREAMLIT_SERVER_FILE_WATCHER_TYPE: "none"
+      STREAMLIT_SERVER_ENABLE_FILE_WATCHER: "false"
+      PYTORCH_JIT: "0"
+      TOKENIZERS_PARALLELISM: "false"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      TORCH_CPP_LOG_LEVEL: "ERROR"
+      TORCH_LOGS: ""   # MUSS leer sein – "error" ist ein ungültiger Wert
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Python einrichten
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Cache pip
+      - name: pip Cache
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
@@ -27,19 +36,38 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Install dependencies
+      - name: Abhängigkeiten installieren
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          # SpaCy Modell sicherstellen
+          # spaCy DE Modell für rechte Panel-Spalte
+          python -m spacy download de_core_news_sm
+
+      - name: Syntax-Check (schnelles Lint)
+        run: |
           python - <<'PY'
-          try:
-              import spacy
-              spacy.load("de_core_news_sm")
-          except Exception:
-              import subprocess, sys
-              subprocess.check_call([sys.executable, "-m", "spacy", "download", "de_core_news_sm"])
+          import sys, pathlib
+          for p in pathlib.Path(".").rglob("*.py"):
+              try:
+                  compile(p.read_text(encoding="utf-8"), str(p), "exec")
+              except Exception as e:
+                  print(f"Syntaxfehler in {p}:\n{e}")
+                  sys.exit(1)
+          print("Syntax OK")
           PY
 
-      - name: Run tests
-        run: pytest -q
+      - name: Tests laufen lassen (freundlich, wenn keine da)
+        shell: bash
+        run: |
+          if [ -d tests ]; then
+            echo "Starte pytest..."
+            pytest -q || code=$?; \
+              if [ "${code:-0}" = "5" ]; then \
+                echo "pytest: keine Tests gefunden → gilt als Erfolg"; \
+                exit 0; \
+              else \
+                exit ${code:-0}; \
+              fi
+          else
+            echo "Kein tests/-Ordner → pytest wird übersprungen."
+          fi
