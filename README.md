@@ -6,12 +6,18 @@
 
 ---
 
-## 📸 Demo
-
-👉 Beispiel: User tippt *„Snare zu laut“* → Tool findet ähnliche Posts.  
-*(Hier dein GIF einfügen, z. B. mit [LICEcap](https://www.cockos.com/licecap/)):*
+## Demo
 
 ![Demo GIF](app/assets/demo.gif)
+
+> **Hinweis (SBERT auf CPU/macOS):** Falls beim Laden von SBERT PyTorch/Triton-Warnungen auftreten,  
+> deinstalliere `triton` und pinne Torch:
+> ```bash
+> pip uninstall -y triton
+> pip install --no-cache-dir "torch==2.2.2" sentence-transformers==3.0.1
+> ```
+
+---
 
 ## 🚀 Live-Demo (Hugging Face Space)
 
@@ -31,14 +37,6 @@ Die Space startet die Streamlit-App. Beim ersten semantischen Suchlauf wird das 
 ---
 
 ## 🚀 Setup (Mac & Linux)
-
-```bash
-git clone https://github.com/steme855/mixing-forum-analyzer.git
-cd mixing-forum-analyzer
-python3 -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-python -m spacy download de_core_news_sm
-
 
 **Leise Logs:** Die App unterdrückt PyTorch/Torch-C++-Init-Logs für ein ruhigeres Terminal.
 
