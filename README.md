@@ -31,5 +31,9 @@
 ```bash
 git clone https://github.com/steme855/mixing-forum-analyzer
 cd mixing-forum-analyzer
+python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
+# optional, nur lokal nötig:
+python -m spacy download de_core_news_sm
 streamlit run app/app.py
+```
