@@ -57,7 +57,7 @@ python -m pip install -r requirements.txt
 
 # Optional (nur lokal, NICHT auf Hugging Face nötig):
 python -m spacy download de_core_news_sm
-
+```
 # Für schnelleres Hot-Reload (empfohlen):
 python -m pip install watchdog
 
