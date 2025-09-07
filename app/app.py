@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Mixing Forum Analyzer — Unified Demo (stabil + features)
 - Ruhige Logs (Streamlit-Watcher aus, Torch-Noise gedämpft, Silent-Warmup)
@@ -110,17 +109,40 @@ def load_corpus() -> List[str]:
         "S-Laute sind scharf, De-Esser einsetzen",
     ]
 
+def _normalize_preset_map(pm: Any) -> Dict[str, Any]:
+    """Make preset map robust to different shapes.
+    Accepts:
+    - structured dict with "entries" (kept as is)
+    - flat dict {"snare":[...], ...} (kept as is)
+    - list of dicts (structured entries) -> wrap into {"entries": [...]} 
+    - list of strings (generic presets) -> wrap into {"_generic": [...]}
+    Otherwise -> return empty structured schema.
+    """
+    # structured dict already
+    if isinstance(pm, dict):
+        if "entries" in pm and isinstance(pm.get("entries"), list):
+            return pm
+        return pm  # treat any other dict as flat map
+    # list inputs
+    if isinstance(pm, list):
+        if all(isinstance(x, dict) and ("key" in x or "actions" in x) for x in pm):
+            return {"schema_version": "1.0", "entries": pm}
+        if all(isinstance(x, str) for x in pm):
+            return {"_generic": pm}
+    # fallback
+    return {"schema_version": "1.0", "entries": []}
+
 @st.cache_data(show_spinner=False)
 def load_preset_map(path="data/preset_map.json"):
     try:
         with open(path, "r", encoding="utf-8") as f:
             txt = f.read().strip()
             if not txt:
-                return {"schema_version": "1.0", "entries": []}
-            return json.loads(txt)
+                return _normalize_preset_map({"schema_version": "1.0", "entries": []})
+            return _normalize_preset_map(json.loads(txt))
     except Exception as e:
         st.warning(f"Preset-Map konnte nicht geladen werden ({e}). Fallback aktiv.")
-        return {"schema_version": "1.0", "entries": []}
+        return _normalize_preset_map({"schema_version": "1.0", "entries": []})
 
 corpus = load_corpus()
 preset_map = load_preset_map()
@@ -265,9 +287,15 @@ def render_action(a: Dict[str, Any]) -> str:
         freq = a.get("freq_hz", 120); return f"SC-HPF @ {freq} Hz"
     return ", ".join([f"{k}={v}" for k, v in a.items()])
 
-def suggest_presets_flat(text: str, pm: Dict[str, Any]) -> List[str]:
+def suggest_presets_flat(text: str, pm: Any) -> List[str]:
     if not text or not pm:
         return []
+    # Accept alternate shapes
+    if isinstance(pm, list):
+        # treat as generic list of suggestions
+        return list(dict.fromkeys(pm))[:5]
+    if isinstance(pm, dict) and isinstance(pm.get("_generic"), list):
+        return list(dict.fromkeys(pm["_generic"]))[:5]
     q = text.lower().strip()
     SYNS = {
         "snare": ["snare", "rimshot"],
