@@ -3,8 +3,25 @@ name: CI
 on:
   push:
     branches: [ main ]
+    paths:
+      - "app/**"
+      - "scripts/**"
+      - "tests/**"
+      - "requirements*.txt"
+      - ".github/workflows/ci.yml"
   pull_request:
     branches: [ main ]
+    paths:
+      - "app/**"
+      - "scripts/**"
+      - "tests/**"
+      - "requirements*.txt"
+      - ".github/workflows/ci.yml"
+
+# >>> Neu: Verhindert parallele veraltete Runs pro Branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
@@ -31,7 +48,8 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: test                         # <<< Neu: erst nach Tests
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && success()
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python 3.11
