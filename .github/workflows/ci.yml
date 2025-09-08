@@ -7,27 +7,38 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
-      # Python 3.11 ist empfohlen (3.12 hat viele Kompatibilitätsprobleme mit ML-Libraries)
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
-      # Optional: pip cache leeren
       - name: Clear pip cache
         run: pip cache purge
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      - name: Run tests
+        run: pytest
 
-      # Deine weiteren Test- oder Build-Schritte...
-      - name: Run Streamlit app test
-        run: streamlit run app/app.py --server.headless true
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Start Streamlit app
+        run: |
+          streamlit run app/app.py --server.headless true &
+          sleep 10
+          curl --fail http://localhost:8501 || exit 1
