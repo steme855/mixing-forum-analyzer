@@ -43,6 +43,10 @@ jobs:
           # spaCy DE Modell für rechte Panel-Spalte
           python -m spacy download de_core_news_sm
 
+      - name: Install dependencies
+        run: |
+          pip install torch==2.3.0  # oder die Version, die mit deinem Code funktioniert
+
       - name: Syntax-Check (schnelles Lint)
         run: |
           python - <<'PY'
