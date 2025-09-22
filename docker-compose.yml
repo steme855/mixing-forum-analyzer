@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  mixing-analyzer:
+    build: .
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - STREAMLIT_SERVER_HEADLESS=true
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+
+  # Optional: Add database or other services here
+  # postgres:
+  #   image: postgres:13
+  #   environment:
+  #     POSTGRES_DB: mixing_analyzer
+  #     POSTGRES_USER: user
+  #     POSTGRES_PASSWORD: password
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+
+# volumes:
+#   postgres_data:

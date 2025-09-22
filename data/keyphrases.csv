@@ -1,0 +1,76 @@
+post_id,phrase
+0,pumpt im Mix
+0,Kickdrum pumpt
+0,Snare wirkt
+0,wirkt zu dünn
+0,Mix
+0,Kickdrum
+0,Snare
+0,dünn
+0,pumpt
+0,wirkt
+1,kHz Bereich
+1,Vocals sitzen
+1,Bereich
+1,Präsenz
+1,Vocals
+1,hinten
+1,kHz
+1,sitzen
+2,Snare klingt trocken
+2,Snare klingt
+2,Raumanteil
+2,klingt trocken
+2,Snare
+2,hart
+2,klingt
+2,trocken
+3,Bassdrum und Kickdrum
+3,brauche mehr Punch
+3,Punch
+3,Kickdrum
+3,Bassdrum
+3,verwechselt
+3,brauche
+4,Low-Pass könnte helfen
+4,sanfter Low-Pass
+4,scharf
+4,helfen
+4,Hi-Hats
+4,sanfter
+4,Low-Pass
+5,Kompressor
+5,Gesang
+5,S-Laut
+5,De-Esser
+6,Ratio
+6,Glue
+6,Drum-Bus
+6,Kleber-Kompressor
+7,Gitarren klingen nasal
+7,kHz etwas anheben
+7,Gitarren klingen
+7,klingen nasal
+7,Gitarren
+7,nasal
+7,absenken
+7,kHz
+7,anheben
+7,klingen
+8,Sidechain von Kick
+8,Kick zur Bassspur
+8,Bassspur einrichten
+8,Sub-Bass ist maskierend
+8,Sidechain
+8,Kick
+8,Bassspur
+8,Sub-Bass
+8,maskierend
+8,einrichten
+9,transientenfreundlicher Kompressor
+9,Snare zu boxig
+9,Kompressor
+9,Snare
+9,boxig
+9,absenken
+9,transientenfreundlicher

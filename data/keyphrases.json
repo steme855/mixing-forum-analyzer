@@ -1,0 +1,127 @@
+[
+  {
+    "post_id": 0,
+    "phrases": [
+      "pumpt im Mix",
+      "Kickdrum pumpt",
+      "Snare wirkt",
+      "wirkt zu dünn",
+      "Mix",
+      "Kickdrum",
+      "Snare",
+      "dünn",
+      "pumpt",
+      "wirkt"
+    ]
+  },
+  {
+    "post_id": 1,
+    "phrases": [
+      "kHz Bereich",
+      "Vocals sitzen",
+      "Bereich",
+      "Präsenz",
+      "Vocals",
+      "hinten",
+      "kHz",
+      "sitzen"
+    ]
+  },
+  {
+    "post_id": 2,
+    "phrases": [
+      "Snare klingt trocken",
+      "Snare klingt",
+      "Raumanteil",
+      "klingt trocken",
+      "Snare",
+      "hart",
+      "klingt",
+      "trocken"
+    ]
+  },
+  {
+    "post_id": 3,
+    "phrases": [
+      "Bassdrum und Kickdrum",
+      "brauche mehr Punch",
+      "Punch",
+      "Kickdrum",
+      "Bassdrum",
+      "verwechselt",
+      "brauche"
+    ]
+  },
+  {
+    "post_id": 4,
+    "phrases": [
+      "Low-Pass könnte helfen",
+      "sanfter Low-Pass",
+      "scharf",
+      "helfen",
+      "Hi-Hats",
+      "sanfter",
+      "Low-Pass"
+    ]
+  },
+  {
+    "post_id": 5,
+    "phrases": [
+      "Kompressor",
+      "Gesang",
+      "S-Laut",
+      "De-Esser"
+    ]
+  },
+  {
+    "post_id": 6,
+    "phrases": [
+      "Ratio",
+      "Glue",
+      "Drum-Bus",
+      "Kleber-Kompressor"
+    ]
+  },
+  {
+    "post_id": 7,
+    "phrases": [
+      "Gitarren klingen nasal",
+      "kHz etwas anheben",
+      "Gitarren klingen",
+      "klingen nasal",
+      "Gitarren",
+      "nasal",
+      "absenken",
+      "kHz",
+      "anheben",
+      "klingen"
+    ]
+  },
+  {
+    "post_id": 8,
+    "phrases": [
+      "Sidechain von Kick",
+      "Kick zur Bassspur",
+      "Bassspur einrichten",
+      "Sub-Bass ist maskierend",
+      "Sidechain",
+      "Kick",
+      "Bassspur",
+      "Sub-Bass",
+      "maskierend",
+      "einrichten"
+    ]
+  },
+  {
+    "post_id": 9,
+    "phrases": [
+      "transientenfreundlicher Kompressor",
+      "Snare zu boxig",
+      "Kompressor",
+      "Snare",
+      "boxig",
+      "absenken",
+      "transientenfreundlicher"
+    ]
+  }
+]

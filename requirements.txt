@@ -1,8 +1,11 @@
+# =============================================================================
+# Mixing Forum Analyzer - Production Dependencies
+# =============================================================================
+
+# Web Framework
 streamlit==1.38.0
-sentence-transformers==3.0.1
-torch==2.2.2
-spacy==3.7.5
-scikit-learn==1.5.1
-pandas==2.2.2
-numpy==1.26.4
-rapidfuzz==3.9.3
+
+# Natural Language Processing & Machine Learning
+sentence-transformers==3.0.1    # Semantic search with SBERT
+torch==2.2.2                    # Deep learning backend (CPU/CUDA)
+spacy==3.7.5                    # NLP processing for German texts
