@@ -23,10 +23,41 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 import pandas as pd
 import streamlit as st
-from rapidfuzz import fuzz
 from sklearn.feature_extraction.text import TfidfVectorizer
 import importlib.util
 from collections import defaultdict
+from difflib import SequenceMatcher
+
+try:  # pragma: no cover - exercised via import path
+    from rapidfuzz import fuzz  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover
+    class _FuzzFallback:
+        """Minimal Ersatz für ``rapidfuzz.fuzz``.
+
+        Liefert heuristische 0-100 Scores auf Basis der Python-Standardbibliothek.
+        Die Werte sind weniger präzise als RapidFuzz, erlauben aber einen
+        funktionsfähigen Import ohne die optionale Abhängigkeit.
+        """
+
+        @staticmethod
+        def _ratio(a: str, b: str) -> int:
+            if not a or not b:
+                return 0
+            score = SequenceMatcher(None, a, b).ratio()
+            return int(round(score * 100))
+
+        @staticmethod
+        def token_set_ratio(a: str, b: str) -> int:
+            def _tokenize(text: str) -> str:
+                return " ".join(sorted(set(text.lower().split())))
+
+            return _FuzzFallback._ratio(_tokenize(a), _tokenize(b))
+
+        @staticmethod
+        def partial_ratio(a: str, b: str) -> int:
+            return _FuzzFallback._ratio(a.lower(), b.lower())
+
+    fuzz = _FuzzFallback()
 
 # =============================================================================
 # CONSTANTS & CONFIGURATION

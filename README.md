@@ -73,7 +73,7 @@ streamlit run app/app.py
   pip install --no-cache-dir "torch==2.2.2" sentence-transformers==3.0.1
   ```
 
-- **spaCy DE-Modell fehlt (rechte Spalte leer):**  
+- **spaCy DE-Modell fehlt (rechte Spalte leer):**
   ```bash
   python -m spacy download de_core_news_sm
   ```
@@ -82,8 +82,16 @@ streamlit run app/app.py
   pip install https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.7.0/de_core_news_sm-3.7.0-py3-none-any.whl
   ```
 
-- **Streamlit React-Fehler (#185) oder Caching-Probleme:**  
-  Browser-Cache leeren / Seite neu laden oder Streamlit neu starten.  
+- **Fuzzy Matching ohne RapidFuzz (Fallback aktiv):**
+  Wenn `rapidfuzz` nicht installiert ist, nutzt die App automatisch einen
+  einfacheren Fuzzy-Vergleich auf Basis der Python-Standardbibliothek. Für
+  präzisere Scores empfiehlt sich die Installation von RapidFuzz:
+  ```bash
+  pip install rapidfuzz
+  ```
+
+- **Streamlit React-Fehler (#185) oder Caching-Probleme:**
+  Browser-Cache leeren / Seite neu laden oder Streamlit neu starten.
   Cache leeren:
   ```bash
   streamlit cache clear
