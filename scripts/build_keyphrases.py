@@ -18,10 +18,6 @@ def main():
 
 if __name__ == "__main__":
     os.makedirs("data", exist_ok=True)
-    main()#
-//  build_keyphrases.py
-//  
-//
-//  Created by SM on 07.09.25.
-//
-
+    main()
+    # build_keyphrases.py
+    # Created by SM on 07.09.25.
