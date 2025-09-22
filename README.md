@@ -4,7 +4,7 @@ emoji: "🎚"
 colorFrom: "red"
 colorTo: "purple"
 sdk: "streamlit"
-sdk_version: "1.38.0"
+sdk_version: "1.49.1"
 app_file: "app/app.py"
 pinned: false
 license: "mit"
@@ -22,6 +22,7 @@ tags:
 
 [![CI](https://github.com/steme855/mixing-forum-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/steme855/mixing-forum-analyzer/actions)
 [![Open in Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Open%20Space-blue)](https://huggingface.co/spaces/Stepman/mixing-forum-analyzer)
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
 ---
 
@@ -36,12 +37,10 @@ https://huggingface.co/spaces/Stepman/mixing-forum-analyzer
 
 ## ⚡ Features
 
-- **Semantische Suche (SBERT)** – ähnliche Mixing-Probleme in Foren finden  
-- **TF-IDF Fallback** – falls SBERT auf dem Host nicht verfügbar ist  
-- **spaCy-Analyse (DE)** – Wortarten, Lemmata, „Lemma-Overlap“-Erklärungen  
-- **Preset-Map** – funktioniert mit *flacher Liste* **oder** *strukturiertem Schema*  
-- **CSV/JSON Export** – Ergebnisse & Preset-Vorschläge exportieren  
-- **UI Goodies** – Demo-GIF, Enter-to-send, Mini-Bar-Chart, Status-Badges
+- **Semantische Suche mit SBERT** → ähnliche Mixing-Probleme in Foren finden  
+- **Streamlit-App** → Texteingabe & Vorschläge in Echtzeit  
+- **spaCy-Analyse** → Wortarten, Lemmata, Sound-Adjektive  
+- **Preset-Map** → erste Mapping-Ideen basierend auf *Handbuch der Tonstudiotechnik*
 
 ---
 
@@ -51,16 +50,47 @@ https://huggingface.co/spaces/Stepman/mixing-forum-analyzer
 git clone https://github.com/steme855/mixing-forum-analyzer
 cd mixing-forum-analyzer
 
-python3 -m venv .venv && source .venv/bin/activate
-python -m pip install -U pip
-python -m pip install -r requirements.txt
+# (Empfohlen) virtuelles Environment
+python3 -m venv venv && source venv/bin/activate
 
-# Optional (nur lokal, NICHT auf Hugging Face nötig):
+# Abhängigkeiten
+pip install -r requirements.txt
+
+# (optional) deutsches spaCy-Modell
 python -m spacy download de_core_news_sm
 
-# Für schnelleres Hot-Reload (empfohlen):
-python -m pip install watchdog
-
+# Start
 streamlit run app/app.py
 ```
 
+---
+
+## 🐞 Troubleshooting
+
+- **SBERT lädt nicht / Triton-Warnungen (macOS/CPU):**  
+  ```bash
+  pip uninstall -y triton
+  pip install --no-cache-dir "torch==2.2.2" sentence-transformers==3.0.1
+  ```
+
+- **spaCy DE-Modell fehlt (rechte Spalte leer):**  
+  ```bash
+  python -m spacy download de_core_news_sm
+  ```
+  Alternativ (Direktlink):
+  ```bash
+  pip install https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.7.0/de_core_news_sm-3.7.0-py3-none-any.whl
+  ```
+
+- **Streamlit React-Fehler (#185) oder Caching-Probleme:**  
+  Browser-Cache leeren / Seite neu laden oder Streamlit neu starten.  
+  Cache leeren:
+  ```bash
+  streamlit cache clear
+  ```
+
+---
+
+## 📄 Lizenz
+
+Dieses Projekt ist lizenziert unter der **MIT License**. Siehe [LICENSE](LICENSE) für Details.

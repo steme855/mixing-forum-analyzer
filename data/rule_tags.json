@@ -1,0 +1,41 @@
+[
+  {
+    "text": "Die Snare ist zu harsch bei 8 kHz, vielleicht De-Esser?",
+    "tags": [
+      "freq",
+      "tone_adj"
+    ]
+  },
+  {
+    "text": "Kick wirkt zu weich – mehr Punch, bitte! 80 Hz boosten?",
+    "tags": [
+      "freq",
+      "tone_adj"
+    ]
+  },
+  {
+    "text": "Vocal nasal & boxig, 800 Hz etwas absenken.",
+    "tags": [
+      "freq",
+      "tone_adj"
+    ]
+  },
+  {
+    "text": "Sidechain vom Kick auf den Bass mit 2–4 dB Ducking.",
+    "tags": [
+      "dynamics"
+    ]
+  },
+  {
+    "text": "Gitarren spitz, zwischen 3–4 kHz zu scharf.",
+    "tags": [
+      "tone_adj"
+    ]
+  },
+  {
+    "text": "Transient-Designer für mehr Attack auf der Snare.",
+    "tags": [
+      "dynamics"
+    ]
+  }
+]

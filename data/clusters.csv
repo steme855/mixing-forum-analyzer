@@ -1,0 +1,11 @@
+post_id,text,cluster
+0,"Die Kickdrum pumpt im Mix, aber die Snare wirkt zu dünn.",1
+1,"Vocals sitzen zu weit hinten, mehr Präsenz im 3 kHz Bereich.",1
+2,"Die Snare klingt trocken und etwas hart, vielleicht mehr Raumanteil.",1
+3,Bassdrum und Kickdrum werden oft verwechselt – ich brauche mehr Punch.,1
+4,"Die Hi-Hats sind zu scharf, ein sanfter Low-Pass könnte helfen.",0
+5,"Der Gesang hat zu viel S-Laut, De-Esser vor dem Kompressor?",3
+6,"Mehr Glue auf dem Drum-Bus, Kleber-Kompressor mit 2:1 Ratio.",3
+7,"Gitarren klingen nasal, 800 Hz leicht absenken, dafür 4 kHz etwas anheben.",2
+8,"Sub-Bass ist maskierend, Sidechain von Kick zur Bassspur einrichten.",4
+9,"Snare zu boxig, 300–500 Hz absenken, transientenfreundlicher Kompressor.",2

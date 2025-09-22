@@ -28,48 +28,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import importlib.util
 from collections import defaultdict
 
-# =============================================================================
-# CONSTANTS & CONFIGURATION
-# =============================================================================
-
-# Performance & UI Constants
-DEFAULT_MAX_RESULTS = 5
-MIN_RESULTS = 3
-MAX_RESULTS = 10
-DEFAULT_INPUT_HEIGHT = 100
-STATUS_COLUMNS = 2
-
-# Fuzzy Matching & Scoring
-MIN_FUZZY_SCORE = 70
-MAX_RECOMMENDATIONS = 5
-MAX_SCORED_CANDIDATES = 6
-
-# Model & Embedding Constants  
-DEFAULT_EMBEDDING_DIM = 384
-LARGE_EMBEDDING_DIM = 512
-MODEL_DOWNLOAD_SIZE_MB = 80
-
-# File Processing
-MAX_SPACY_DISPLAY_ROWS = 200
-DEFAULT_NGRAM_RANGE = (1, 2)
-MIN_DOCUMENT_FREQUENCY = 1
-
-# Frequency & Audio Constants
-DEFAULT_VOCAL_FREQ_HZ = 800
-SIBILANCE_FREQ_RANGE = "6-8 kHz"
-DEESSER_REDUCTION_DB = 4
-DEESSER_RANGE_DB = 6
-
-# Timing & Performance
-TORCH_WARMUP_LINES = 30
-MAX_LINE_LENGTH = 120
-
-# Scoring Boosts
-INSTRUMENT_BOOST = {"snare": 1.15, "kick": 1.10, "vocal": 1.05, "bass": 1.05}
-FREQUENCY_PATTERN_BOOST = 1.05
-
-
-
 # -----------------------------
 # Environment & logging hygiene
 # -----------------------------
@@ -109,7 +67,7 @@ def _warmup_torch_silently() -> None:
             importlib.import_module("torch")
         except Exception:
             pass
-_warmup_torch_silently()
+print("Torch warmup disabled")
 
 # -----------------------------
 # Page
@@ -137,18 +95,6 @@ if "mode_label" in st.session_state and "elapsed_ms" in st.session_state:
 # -----------------------------
 @st.cache_data(show_spinner=False)
 def load_corpus() -> List[str]:
-    """
-    Lädt das Mixing-Problem Korpus aus einer JSON-Datei.
-
-    Versucht zuerst data/sample_corpus.json zu laden, verwendet bei Fehlern
-    ein Standard-Korpus mit typischen Audio-Engineering Problemen.
-
-    Returns:
-        List[str]: Liste der Mixing-Problem Beschreibungen
-
-    Raises:
-        Keine - verwendet Fallback bei Fehlern
-    """
     try:
         with open("data/sample_corpus.json", "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -282,18 +228,6 @@ rule_tags = load_rule_tags()
 
 @st.cache_resource(show_spinner=False)
 def build_tfidf(corpus_texts: List[str]):
-    """
-    Erstellt TF-IDF Vectorizer und transformiert das Korpus.
-
-    Konfiguriert für deutsche Audio-Engineering Texte mit Bigramm-Support
-    und case-insensitive Verarbeitung.
-
-    Args:
-        corpus_texts: Liste der zu vektorisierenden Texte
-
-    Returns:
-        Tuple[TfidfVectorizer, sparse matrix]: Fitted Vectorizer und Matrix
-    """
     vect = TfidfVectorizer(lowercase=True, ngram_range=(1, 2), min_df=1)
     X = vect.fit_transform(corpus_texts)
     return vect, X
@@ -305,18 +239,6 @@ DEFAULT_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 
 @st.cache_resource(show_spinner=False)
 def load_sbert(model_name: str):
-    """
-    Lädt ein Sentence-BERT Modell für semantische Suche.
-
-    Verwendet CPU-Device und unterdrückt Warnings während des Ladens.
-    Gibt None zurück bei Fehlern (z.B. Triton-Konflikte).
-
-    Args:
-        model_name: HuggingFace Model-Name (z.B. paraphrase-multilingual-MiniLM-L12-v2)
-
-    Returns:
-        SentenceTransformer | None: Geladenes Modell oder None bei Fehlern
-    """
     try:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -335,16 +257,6 @@ def load_sbert(model_name: str):
 
 @st.cache_data(show_spinner=False)
 def embed_corpus(model_name: str, docs: List[str]):
-    """
-    Erstellt normalisierte Embeddings für eine Dokumentensammlung.
-
-    Args:
-        model_name: Name des SBERT-Modells
-        docs: Liste der zu embedded Dokumente
-
-    Returns:
-        np.ndarray | None: Normalisierte Embedding-Matrix oder None bei Fehlern
-    """
     model = load_sbert(model_name)
     if model is None:
         return None
@@ -354,14 +266,6 @@ def embed_corpus(model_name: str, docs: List[str]):
             return model.encode(docs, normalize_embeddings=True)
 
 def _detect_triton_conflict() -> bool:
-    """
-    Prüft ob das separate Triton-Paket installiert ist.
-
-    Triton kann mit PyTorch konfligieren und SBERT-Loading blockieren.
-
-    Returns:
-        bool: True wenn Triton-Konflikt erkannt
-    """
     try:
         return importlib.util.find_spec("triton") is not None
     except Exception:
@@ -380,15 +284,6 @@ def _render_triton_warning(sidebar: bool = True) -> None:
 # spaCy (robust + Diagnose)
 # -----------------------------
 def load_spacy():
-    """
-    Lädt das deutsche spaCy-Modell mit robuster Fallback-Logik.
-
-    Versucht verschiedene Lade-Methoden und speichert Fehler im Session-State.
-    Verwendet kein Streamlit-Caching um None-Werte zu vermeiden.
-
-    Returns:
-        spacy.Language | None: Geladenes spaCy-Modell oder None bei Fehlern
-    """
     """Robuste spaCy-Ladelogik ohne Caching (vermeidet 'None' im Cache)."""
     try:
         import spacy
@@ -504,7 +399,7 @@ def suggest_presets_flat(text: str, pm: Any) -> List[str]:
         s1 = fuzz.token_set_ratio(q, k)
         s2 = fuzz.partial_ratio(q, k)
         score = max(s1, s2)
-        if score >= MIN_FUZZY_SCORE:
+        if score >= 70:
             scored.append((score, key))
     scored.sort(reverse=True)
     recs, seen = [], set()
@@ -591,7 +486,7 @@ else:
 if use_semantics and _detect_triton_conflict():
     _render_triton_warning(sidebar=True)
 
-k = st.sidebar.slider("Anzahl Treffer", min_value=MIN_RESULTS, max_value=MAX_RESULTS, value=DEFAULT_MAX_RESULTS)
+k = st.sidebar.slider("Anzahl Treffer", min_value=3, max_value=10, value=5)
 show_explanations = st.sidebar.checkbox("Erklärungen anzeigen (Lemma-Overlap)", value=True)
 show_overlap_chart = st.sidebar.checkbox("Mini-Bar-Chart anzeigen", value=True)
 
@@ -643,7 +538,7 @@ if send_on_enter:
     st.text_input(label_txt, key="query_text", placeholder=placeholder_txt, on_change=_trigger_search_cb)
     st.caption("↩️ **Enter** startet sofort die Suche (einzeiliges Feld).")
 else:
-    st.text_area(label_txt, key="query_text", placeholder=placeholder_txt, height=DEFAULT_INPUT_HEIGHT)
+    st.text_area(label_txt, key="query_text", placeholder=placeholder_txt, height=100)
     st.caption("⌨️ **Ctrl/⌘ + Enter** – danach auf *Ähnliche Posts finden* klicken.")
 
 preset_level = st.selectbox(
@@ -892,9 +787,9 @@ with col2:
             rows = [{"Text": t.text, "Lemma": t.lemma_, "POS": t.pos_} for t in doc]
             df_spacy = pd.DataFrame(rows, dtype=str)
             try:
-                st.dataframe(df_spacy.head(MAX_SPACY_DISPLAY_ROWS), use_container_width=True, hide_index=True)
+                st.dataframe(df_spacy.head(200), use_container_width=True, hide_index=True)
             except Exception:
-                st.table(df_spacy.head(MAX_SPACY_DISPLAY_ROWS))
+                st.table(df_spacy.head(200))
             adjs = sorted({t.lemma_.lower() for t in doc if t.pos_ == "ADJ" and not t.is_stop})
             st.caption("Adjektive (Sound-Beschreibung): " + (", ".join(adjs) if adjs else "—"))
         except Exception:
