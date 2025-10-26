@@ -35,8 +35,9 @@ jobs:
             exit 1
           fi
           python - <<'PY'
+          python <<'EOF'
 import os
-from datetime import datetime, timezone
+from datetime import datetime,timezone
 from huggingface_hub import HfApi
 
 token = os.environ["HF_TOKEN"]
