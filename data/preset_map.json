@@ -1,12 +1,23 @@
-[
-  "Die Kickdrum pumpt im Mix, aber die Snare wirkt zu dünn.",
-  "Vocals sitzen zu weit hinten, mehr Präsenz im 3 kHz Bereich.",
-  "Die Snare klingt trocken und etwas hart, vielleicht mehr Raumanteil.",
-  "Bassdrum und Kickdrum werden oft verwechselt – ich brauche mehr Punch.",
-  "Die Hi-Hats sind zu scharf, ein sanfter Low-Pass könnte helfen.",
-  "Der Gesang hat zu viel S-Laut, De-Esser vor dem Kompressor?",
-  "Mehr Glue auf dem Drum-Bus, Kleber-Kompressor mit 2:1 Ratio.",
-  "Gitarren klingen nasal, 800 Hz leicht absenken, dafür 4 kHz etwas anheben.",
-  "Sub-Bass ist maskierend, Sidechain von Kick zur Bassspur einrichten.",
-  "Snare zu boxig, 300–500 Hz absenken, transientenfreundlicher Kompressor."
-]
+{
+  "schema_version": "1.0",
+  "snare": [
+    "EQ: 200 Hz -3 dB, Q 1.2",
+    "Transient Designer: Attack leicht erhoehen"
+  ],
+  "kick": [
+    "Parallel Kompression 4:1, Blend 30%",
+    "EQ: 4 kHz +2 dB fuer mehr Attack"
+  ],
+  "vocals": [
+    "De-Esser bei 7 kHz, 4 dB Reduktion",
+    "EQ: 3 kHz +1.5 dB fuer Praesenz"
+  ],
+  "bass": [
+    "Sidechain Kompressor von Kick, 2 dB Ducking",
+    "EQ: Low-Shelf bei 80 Hz -2 dB"
+  ],
+  "_generic": [
+    "Mix Bus Glue Kompressor 2:1",
+    "Referenztrack zum Abgleich nutzen"
+  ]
+}

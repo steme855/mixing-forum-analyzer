@@ -1,16 +1,7 @@
-# =============================================================================
-# Mixing Forum Analyzer - Production Dependencies
-# =============================================================================
-
-# Web Framework
-streamlit==1.38.0
-
-# Natural Language Processing & Machine Learning
-sentence-transformers==3.0.1    # Semantic search with SBERT
-torch==2.2.2                    # Deep learning backend (CPU/CUDA)
-spacy==3.7.5                    # NLP processing for German texts
-rapidfuzz==3.14.1               # Fuzzy matching for preset and tag suggestions
-scikit-learn==1.7.2             # TF-IDF vectorizer and classical ML utilities
-
-# Testing
-pytest==8.3.3                   # Test runner for automated smoke checks
+streamlit>=1.33,<2
+scikit-learn>=1.3
+rapidfuzz>=3.0
+spacy>=3.7
+# Optional (comment-in if you actually use it in your app):
+# sentence-transformers>=3.0
+# torch>=2.2

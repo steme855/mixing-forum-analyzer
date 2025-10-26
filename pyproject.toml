@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 120
+target-version = ["py39", "py310", "py311"]
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 120
+known_first_party = ["preset_advisor", "presets", "evaluation"]
+skip_glob = ["docs/*"]
+
+[tool.flake8]
+max-line-length = 120
+extend-ignore = ["E203", "W503"]
+exclude = [".git", ".venv", "__pycache__", "build", "dist"]
+
+[tool.coverage.run]
+branch = true
+source = ["src", "presets", "evaluation"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
