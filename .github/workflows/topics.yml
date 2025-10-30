@@ -5,8 +5,7 @@ on:
     branches: ["main"]
 
 permissions:
-  contents: read
-  metadata: write
+  contents: write
 
 jobs:
   update-topics:
