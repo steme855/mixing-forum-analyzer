@@ -34,7 +34,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pytest pytest-cov
-        python -m spacy download de_core_news_sm
+        if python -c "import spacy" 2>/dev/null; then
+          python -m spacy download de_core_news_sm
+        fi
 
     - name: Run smoke tests
       run: |
