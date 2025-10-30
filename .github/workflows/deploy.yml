@@ -4,9 +4,14 @@ on:
   push:
     branches: ["main"]
     paths:
-      - "app/**"
+      - "app.py"
+      - "src/**"
+      - "presets/**"
+      - "data/sample_corpus.json"
       - "requirements.txt"
+      - "requirements-dev.txt"
       - "README.md"
+      - "sitecustomize.py"
 
 jobs:
   deploy:
@@ -51,8 +56,10 @@ api.upload_folder(
     path_in_repo=".",
     commit_message=f"CI deploy ({datetime.now(timezone.utc).isoformat(timespec='seconds')})",
     allow_patterns=[
-        "app/**",
+        "app.py",
+        ".streamlit/**",
         "src/**",
+        "sitecustomize.py",
         "requirements*.txt",
         "README.md",
         "assets/**",
@@ -65,6 +72,9 @@ api.upload_folder(
         "notebooks/**",
         "tests/**",
         "docs/**",
+        "**/__pycache__/**",
+        "*.ipynb",
+        "backup-*/**",
     ],
 )
 PY
