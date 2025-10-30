@@ -17,11 +17,8 @@ jobs:
         with:
           script: |
             const desiredTopics = ["audio-processing", "semantic-search", "streamlit"];
-            await github.request("PUT /repos/{owner}/{repo}/topics", {
+            await github.rest.repos.replaceAllTopics({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              names: desiredTopics,
-              mediaType: {
-                previews: ["mercy"]
-              }
+              names: desiredTopics
             });
