@@ -11,7 +11,8 @@ from preset_advisor.search import SearchResult, SemanticSearchEngine
 
 @pytest.fixture(scope="module")
 def engine() -> SemanticSearchEngine:
-    corpus = json.loads(Path("data/sample_corpus.json").read_text(encoding="utf-8"))
+    corpus_path = Path("data/sample_corpus.json")
+    corpus = json.loads(corpus_path.read_text(encoding="utf-8"))
     return SemanticSearchEngine(corpus)
 
 

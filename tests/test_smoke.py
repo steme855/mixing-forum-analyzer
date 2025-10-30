@@ -47,7 +47,9 @@ def test_sample_corpus_json_structure() -> None:
 
     corpus_path = Path("data/sample_corpus.json")
     corpus = json.loads(corpus_path.read_text(encoding="utf-8"))
-    assert isinstance(corpus, list) and corpus, "Corpus muss eine nicht-leere Liste sein"
+    assert isinstance(corpus, list) and corpus, (
+        "Corpus muss eine nicht-leere Liste sein"
+    )
     assert all(isinstance(entry, str) for entry in corpus)
 
 

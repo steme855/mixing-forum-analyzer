@@ -14,7 +14,9 @@ def recommender() -> PresetRecommender:
 
 @pytest.mark.unit
 def test_preset_library_not_empty(recommender: PresetRecommender) -> None:
-    assert recommender.suggest("blechern"), "Library sollte mindestens einen Treffer liefern"
+    assert recommender.suggest("blechern"), (
+        "Library sollte mindestens einen Treffer liefern"
+    )
 
 
 @pytest.mark.unit
@@ -34,7 +36,11 @@ def test_recommendation_type_matches_keyword(recommender: PresetRecommender) -> 
 
 @pytest.mark.unit
 def test_severity_adjusts_gain(recommender: PresetRecommender) -> None:
-    medium_gain = recommender.suggest("hi hats sind harsch", severity="medium")[0].gain_db
-    strong_gain = recommender.suggest("hi hats sind harsch", severity="strong")[0].gain_db
+    medium_gain = recommender.suggest(
+        "hi hats sind harsch", severity="medium"
+    )[0].gain_db
+    strong_gain = recommender.suggest(
+        "hi hats sind harsch", severity="strong"
+    )[0].gain_db
     assert medium_gain is not None and strong_gain is not None
     assert strong_gain < medium_gain
