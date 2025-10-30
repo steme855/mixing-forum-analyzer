@@ -14,7 +14,8 @@ from preset_advisor.search import SemanticSearchEngine
 
 @pytest.fixture(scope="module")
 def engine() -> SemanticSearchEngine:
-    corpus = json.loads(Path("data/sample_corpus.json").read_text(encoding="utf-8"))
+    corpus_path = Path("data/sample_corpus.json")
+    corpus = json.loads(corpus_path.read_text(encoding="utf-8"))
     return SemanticSearchEngine(corpus)
 
 
@@ -53,7 +54,9 @@ def test_streamlit_app_importable() -> None:
     try:
         module = importlib.import_module(module_name)
     except ModuleNotFoundError:
-        spec = importlib.util.spec_from_file_location(module_name, Path("src/app/main.py"))
+        spec = importlib.util.spec_from_file_location(
+            module_name, Path("src/app/main.py")
+        )
         assert spec is not None and spec.loader is not None
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

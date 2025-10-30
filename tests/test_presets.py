@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Iterable
-
 import pytest
 
 from presets.preset_recommender import PresetRecommendation, PresetRecommender
@@ -29,7 +27,9 @@ def test_recommendation_schema(recommender: PresetRecommender) -> None:
 
 @pytest.mark.unit
 def test_recommendation_type_matches_keyword(recommender: PresetRecommender) -> None:
-    recommendation = recommender.suggest("zu viel 3kHz, ziemlich blechern")[0]
+    recommendation = recommender.suggest(
+        "zu viel 3kHz, ziemlich blechern"
+    )[0]
     assert "EQ" in recommendation.type
     assert recommendation.frequency == 3000
 
