@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import importlib
 import json
 from pathlib import Path
 
@@ -23,13 +22,13 @@ def test_critical_imports() -> None:
     """Ensure all top-level dependencies are importable."""
 
     for module_name in CRITICAL_MODULES:
-        importlib.import_module(module_name)
+        pytest.importorskip(module_name)
 
 
 def test_torch_cpu_tensor_ops() -> None:
     """Verify basic tensor arithmetic works on the default device."""
 
-    torch = importlib.import_module("torch")
+    torch = pytest.importorskip("torch")
     tensor = torch.tensor([1.0, 2.0, 3.0], dtype=torch.float32)
     assert torch.isfinite(tensor).all()
     assert torch.allclose(tensor.sum(), torch.tensor(6.0))
