@@ -16,33 +16,49 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      HF_SPACE_ID: ${{ secrets.HF_SPACE_ID }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Inspect Hugging Face secrets
+        id: check-secrets
+        run: |
+          if [ -z "${HF_TOKEN:-}" ] || [ -z "${HF_SPACE_ID:-}" ]; then
+            echo "missing=true" >> "$GITHUB_OUTPUT"
+            echo "HF_TOKEN and HF_SPACE_ID secrets not configured. Skipping deploy."
+          else
+            echo "missing=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.check-secrets.outputs.missing == 'false'
+        uses: actions/checkout@v4
 
       - name: Set up Python
+        if: steps.check-secrets.outputs.missing == 'false'
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Install dependencies
+        if: steps.check-secrets.outputs.missing == 'false'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install "huggingface_hub[cli]" requests
 
       - name: Deploy to Hugging Face Space
+        if: steps.check-secrets.outputs.missing == 'false'
         env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_SPACE_ID: ${{ secrets.HF_SPACE_ID }}
+          HF_TOKEN: ${{ env.HF_TOKEN }}
+          HF_SPACE_ID: ${{ env.HF_SPACE_ID }}
         run: |
           if [ -z "$HF_TOKEN" ] || [ -z "$HF_SPACE_ID" ]; then
             echo "HF_TOKEN and HF_SPACE_ID secrets must be configured."
             exit 1
           fi
           python - <<'PY'
-          python <<'EOF'
 import os
-from datetime import datetime,timezone
+from datetime import datetime, timezone
 from huggingface_hub import HfApi
 
 token = os.environ["HF_TOKEN"]
@@ -80,8 +96,13 @@ api.upload_folder(
 PY
 
       - name: Health check
-        if: ${{ secrets.HF_SPACE_ID != '' }}
+        if: steps.check-secrets.outputs.missing == 'false'
         env:
-          HF_SPACE_ID: ${{ secrets.HF_SPACE_ID }}
+          HF_SPACE_ID: ${{ env.HF_SPACE_ID }}
         run: |
           curl --fail --silent --show-error "https://huggingface.co/spaces/${HF_SPACE_ID}"
+
+      - name: Skip deploy (secrets missing)
+        if: steps.check-secrets.outputs.missing == 'true'
+        run: |
+          echo "Deployment skipped because HF secrets are not set."
