@@ -1,9 +1,4 @@
-Natürlich ✅ — hier ist dein funktionierender, optimierter README-Code zum direkten Kopieren in GitHub oder LinkedIn-kompatible Editoren (UTF-8 safe, keine Sonderzeichenfehler).
-
-⸻
-
-
-# 🎧 Mixing Forum Analyzer
+🎧 Mixing Forum Analyzer
 > **Semantic Search Engine for Mixing Forums – with a Preset Coach in under 1 second**
 
 <p align="center">
