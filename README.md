@@ -138,16 +138,3 @@ Stephan Meyer — Audio Engineer & Developer
 🎓 SAE Certified · Evidence-based Workflows · AI-Driven Automation
 📫 GitHub Profile￼
 
-⸻
-
-⭐ If you like this project, give it a Star on GitHub — it helps others find useful open-source audio AI tools.
-
----
-
-👉 **Fertig:**  
-- UTF-8-sicher  
-- Badges & Links getestet  
-- Kompatibel mit GitHub **und** Hugging Face Space  
-- LinkedIn-copy-ready (Banner oben + Intro + Features klar lesbar)  
-
-Willst du, dass ich dir noch den **LinkedIn-Post-Text (2 Absätze + Hashtags)** passend dazu formatiere?
