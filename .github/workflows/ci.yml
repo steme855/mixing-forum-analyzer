@@ -33,7 +33,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pytest-cov
+        pip install -r requirements-dev.txt
         if python -c "import spacy" 2>/dev/null; then
           python -m spacy download de_core_news_sm
         fi
@@ -66,7 +66,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: '3.11'
 
     - name: Install linting tools
       run: |
