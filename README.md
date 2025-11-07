@@ -2,7 +2,7 @@
 > **Semantic Search Engine for Mixing Forums – Preset Coaching in under 1 second**
 
 <p align="center">
-  <img src="docs/README-preview.png" alt="Mixing Forum Analyzer banner" width="100%">
+  <img src="/docs/README-preview.png" alt="Mixing Forum Analyzer banner" width="100%">
 </p>
 
 ---
