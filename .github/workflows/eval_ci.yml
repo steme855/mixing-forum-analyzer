@@ -1,0 +1,66 @@
+name: Evaluation CI
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+  workflow_dispatch:
+
+jobs:
+  run-evaluation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # 1️⃣ Repository checkout
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # 2️⃣ Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      # 3️⃣ Cache dependencies (optional for speed)
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      # 4️⃣ Install dependencies
+      - name: Install requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          # Safety: ensure minimal set if not all deps are pinned
+          pip install numpy pandas scikit-learn sentence-transformers rapidfuzz streamlit
+
+      # 5️⃣ Run evaluation
+      - name: Run evaluation pipeline
+        run: |
+          python -m preset_advisor.evaluation_pipeline > metrics/log.txt
+
+      # 6️⃣ Summarize key metrics
+      - name: Display summary
+        if: success()
+        run: |
+          echo "=== SUMMARY ==="
+          cat preset_advisor/metrics/summary.json || echo "No summary file found"
+          echo "=== CSV files ==="
+          ls -lh preset_advisor/metrics/*.csv || true
+
+      # 7️⃣ Upload artifacts (CSV + JSON)
+      - name: Upload evaluation results
+        uses: actions/upload-artifact@v4
+        with:
+          name: evaluation-metrics
+          path: |
+            preset_advisor/metrics/*.csv
+            preset_advisor/metrics/summary.json
+            preset_advisor/metrics/log.txt
+          retention-days: 7
