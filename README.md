@@ -1,8 +1,29 @@
-🎧 Mixing Forum Analyzer
+---
+title: 🎧 Mixing Forum Analyzer
+emoji: 🎚️
+colorFrom: indigo
+colorTo: blue
+sdk: streamlit
+app_file: app.py
+pinned: true
+license: mit
+short_description: Semantic Search Engine for Mixing Forums
+tags:
+  - audio
+  - semantic-search
+  - machine-learning
+  - streamlit
+  - huggingface
+  - nlp
+thumbnail: https://cdn-uploads.huggingface.co/production/uploads/684f05d88dd67bb7d27a2287/N4PhKWhsz-kqiHZGf_VtU.png
+sdk_version: 1.51.0
+---
+
+# 🎧 Mixing Forum Analyzer
 > **Semantic Search Engine for Mixing Forums – Preset Coaching in under 1 second**
 
 <p align="center">
-  <img src="/docs/README-preview.png" alt="Mixing Forum Analyzer banner" width="100%">
+  <img src="docs/README-preview.png" alt="Mixing Forum Analyzer banner" width="100%">
 </p>
 
 ---
@@ -24,13 +45,13 @@
 Audio engineers spend 2–3 hours per week searching forums for repeated mixing issues.
 
 ### ⚙️ Solution
-A **semantic hybrid search** instantly retrieves similar cases (SBERT + TF-IDF) and the **Preset Coach** recommends precise EQ or gain adjustments.
+A **semantic hybrid search** instantly retrieves similar cases (SBERT + TF-IDF), while the **Preset Coach** recommends precise EQ or gain adjustments.
 
 ### 📈 Impact
 
 | 💼 Benefit | 💰 Result |
 |-------------|-----------|
-| ⏱ **Time Saved** | ~120 h/year ≈ € 3 600 (@ € 30 / h) |
+| ⏱ **Time Saved** | ≈ 120 h / year ≈ € 3 600 (@ € 30 / h) |
 | 📚 **Knowledge Base** | Curated forum posts + preset library |
 | 📊 **Monitoring** | Evaluation notebook + metrics dashboard |
 
@@ -105,45 +126,3 @@ python -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\acti
 pip install -r requirements.txt
 python -m spacy download de_core_news_sm
 streamlit run app.py
-
-
-⸻
-
-🗂 Data Pipeline
-
-raw/ → processed/ → embeddings/
-Detailed in data/README.md (sources, preprocessing, license notes)
-
-⸻
-
-🧪 Tests & CI/CD
-
-Stage	Tool	Description
-🧩 Unit / Integration Tests	pytest, pytest-cov	Covers search + presets
-🎨 Lint & Format	flake8, black, isort	via Makefile / pre-commit
-🧰 CI Workflow	.github/workflows/test.yml	Python 3.9 → 3.11 + Codecov
-🚀 Deploy Workflow	.github/workflows/deploy.yml	Auto Deploy → Hugging Face
-🔐 Secrets Guide	docs/setup_guide.md	Badge & token management
-
-
-⸻
-
-📈 Quality Dashboard
-
-Metric	Source	Purpose
-🧪 Coverage	Codecov￼	Coverage & trend visuals
-⚙️ Workflows	GitHub Actions￼	CI / Deploy runs
-🤗 Deployment	Hugging Face Space￼	Latest build online
-
-
-⸻
-
-👤 Author
-
-Stephan Meyer — Audio Engineer & Developer
-🎓 SAE Certified  |  Evidence-based Audio Workflows  |  AI-Driven Automation
-📫 GitHub Profile￼
-
-⸻
-
-⭐ If you like this project, give it a Star on GitHub — it helps others find open-source audio AI tools.
