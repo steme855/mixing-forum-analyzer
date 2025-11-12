@@ -35,7 +35,7 @@ sdk_version: 1.51.0
 [![Codecov](https://codecov.io/gh/steme855/mixing-forum-analyzer/branch/main/graph/badge.svg)](https://codecov.io/gh/steme855/mixing-forum-analyzer)
 [![Python](https://img.shields.io/badge/python-3.9%20|%203.10%20|%203.11-blue?logo=python)](pyproject.toml)
 [![License: MIT](https://img.shields.io/github/license/steme855/mixing-forum-analyzer.svg)](LICENSE)
-[![Hugging Face Space](https://img.shields.io/badge/Space-online-brightgreen?logo=huggingface)](https://huggingface.co/spaces/steme855/mixing-forum-analyzer)
+[![Hugging Face Space](https://img.shields.io/badge/Space-online-brightgreen?logo=huggingface)](https://huggingface.co/spaces/stepman/mixing-forum-analyzer)
 
 ---
 
