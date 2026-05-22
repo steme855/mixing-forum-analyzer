@@ -36,7 +36,7 @@ sdk_version: 1.51.0
 
 ![Demo](docs/demo.gif)
 
-> Example query: “Kick klingt blechern, too much 3 kHz” → Top-3 matches + preset recommendation highlight.
+> Example query: "Kick klingt blechern, too much 3 kHz" → Top-3 matches + preset recommendation highlight.
 
 ### 🔖 Build Status
 
@@ -63,7 +63,7 @@ A **semantic hybrid search** instantly retrieves similar cases (SBERT + TF-IDF),
 | 📚 **Knowledge Base** | Curated forum posts + preset library |
 | 📊 **Monitoring** | Evaluation notebook + metrics dashboard |
 
-> 💻 **Demo:** `streamlit run app.py`  📊 **Impact View:** `docs/metrics_for_readme.md`
+> 💻 **Demo:** `streamlit run app.py`  📊 **Impact View:** `docs/metrics_for_readme.md`
 
 ---
 
@@ -113,7 +113,7 @@ _Source:_ `notebooks/02_evaluation.ipynb` (29 queries, TF-IDF baseline) → `doc
 
 ## 🎛️ Preset Intelligence
 
-- 🧩 **Symptom → Frequency:** “blechern” → cut 3 – 5 kHz  
+- 🧩 **Symptom → Frequency:** "blechern" → cut 3 – 5 kHz  
 - 📈 **Severity Scoring:** light / medium / strong gain adjustments  
 - 🎚 **Multi-Label Output:** multiple presets per issue
 
@@ -126,35 +126,10 @@ python -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\acti
 pip install -r requirements.txt
 python -m spacy download de_core_news_sm
 streamlit run app.py
-
-
----
-
-## 👤 About the Developer
-
-Built by **Stephan Meyer** – 50-year-old audio engineer (SAE Institut) who transitioned to AI development in 2024.
-
-**Development Journey**:
-- ⏱️ **Timeline**: 6 months solo development
-- 💰 **Cost**: <€8k (vs. industry avg €47k for similar systems)
-- 🤖 **Method**: AI-assisted development workflow
-- 📊 **Portfolio Value**: €50k-80k
-
-**Tech Stack Expertise**: Python • SBERT • spaCy • NLP • Streamlit • Hugging Face • Production ML Deployment
-
-This project proves: **Domain expertise (20+ years audio engineering) + Modern AI tools = Competitive advantage**
-
----
-
-## 📧 Contact
-
-**Open to opportunities** in Audio-AI, ML Engineering, Semantic Search, NLP.
-
-🌐 | 💼 [LinkedIn] (https://www.linkedin.com/in/stephan-meyer-868453ba/)| 📧 stephanmeyer855@gmail.com
+```
 
 ---
 
 <p align="center">
-  <sub>Built with ❤️ and 🤖 AI-assisted development | From Audio Engineer to AI Developer at 50</sub>
+  <sub>Built with ❤️ and 🤖 AI-assisted development</sub>
 </p>
-
