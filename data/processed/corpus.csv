@@ -1,0 +1,33 @@
+doc_id,text,instrument,issue_type,source,language,license_status
+seed_000,"Die Kickdrum pumpt im Mix, aber die Snare wirkt zu dünn.",drums,dynamics_balance,curated_seed,de,synthetic_or_curated_example
+seed_001,"Vocals sitzen zu weit hinten, mehr Präsenz im 3 kHz Bereich.",vocals,presence,curated_seed,de,synthetic_or_curated_example
+seed_002,"Die Snare klingt trocken und etwas hart, vielleicht mehr Raumanteil.",snare,space_harshness,curated_seed,de,synthetic_or_curated_example
+seed_003,"Bassdrum und Kickdrum werden oft verwechselt – ich brauche mehr Punch.",kick,punch,curated_seed,de,synthetic_or_curated_example
+seed_004,"Die Hi-Hats sind zu scharf, ein sanfter Low-Pass könnte helfen.",hihats,harsh_highs,curated_seed,de,synthetic_or_curated_example
+seed_005,"Der Gesang hat zu viel S-Laut, De-Esser vor dem Kompressor?",vocals,sibilance,curated_seed,de,synthetic_or_curated_example
+seed_006,"Mehr Glue auf dem Drum-Bus, Kleber-Kompressor mit 2:1 Ratio.",drum_bus,bus_compression,curated_seed,de,synthetic_or_curated_example
+seed_007,"Gitarren klingen nasal, 800 Hz leicht absenken, dafür 4 kHz etwas anheben.",guitars,nasal_mids,curated_seed,de,synthetic_or_curated_example
+seed_008,"Sub-Bass ist maskierend, Sidechain von Kick zur Bassspur einrichten.",bass,masking,curated_seed,de,synthetic_or_curated_example
+seed_009,"Snare zu boxig, 300–500 Hz absenken, transientenfreundlicher Kompressor.",snare,boxiness,curated_seed,de,synthetic_or_curated_example
+seed_010,"Kick zu weich, 60–80 Hz boosten für mehr Sub-Punch.",kick,punch,curated_seed,de,synthetic_or_curated_example
+seed_011,"Vocals zu präsent, 3–5 kHz leicht absenken.",vocals,presence_control,curated_seed,de,synthetic_or_curated_example
+seed_012,"Room-Reverb klingt zu lang, Pre-Delay erhöhen oder Decay kürzen.",reverb,space_timing,curated_seed,de,synthetic_or_curated_example
+seed_013,"Mix klingt dumpf, High-Shelf ab 10 kHz leicht anheben.",mix_bus,dull_mix,curated_seed,de,synthetic_or_curated_example
+seed_014,"Snare-Reverb zu lang, Decay auf 0.8 s kürzen.",snare,reverb_decay,curated_seed,de,synthetic_or_curated_example
+seed_015,"Gitarren maskieren die Vocals, High-Pass auf Gitarre bei 200 Hz.",guitars,masking,curated_seed,de,synthetic_or_curated_example
+seed_016,"Kompressor pumpt zu stark, Attack verlängern oder Ratio reduzieren.",dynamics,compression_pumping,curated_seed,de,synthetic_or_curated_example
+seed_017,"Bass klingt boomig, 80–120 Hz leicht absenken.",bass,boominess,curated_seed,de,synthetic_or_curated_example
+seed_018,"Overhead-Becken zu schrill, High-Shelf bei 12 kHz um 2 dB absenken.",overheads,harsh_highs,curated_seed,de,synthetic_or_curated_example
+seed_019,"Sidechain-Kompressor auf Bassline von Kick triggern, 4 dB Ducking.",bass,sidechain,curated_seed,de,synthetic_or_curated_example
+seed_020,"Vocal-Bus braucht Sättigung, Tape-Saturation sanft dazumischen.",vocals,saturation,curated_seed,de,synthetic_or_curated_example
+seed_021,"Kick fehlt Transient, Transient-Designer mit kurzem Attack-Boost.",kick,transient,curated_seed,de,synthetic_or_curated_example
+seed_022,"Snare braucht mehr Body, Bell-EQ bei 200 Hz um 2 dB anheben.",snare,body,curated_seed,de,synthetic_or_curated_example
+seed_023,"Piano klingt dünn, Low-Mid-Boost bei 300 Hz.",piano,thinness,curated_seed,de,synthetic_or_curated_example
+seed_024,"Hi-Hats brauchen mehr Shimmer, Air-EQ ab 16 kHz anheben.",hihats,air,curated_seed,de,synthetic_or_curated_example
+seed_025,"Pad klingt zu mono, Stereo-Widener auf den Send.",pad,stereo_width,curated_seed,de,synthetic_or_curated_example
+seed_026,"Clap klingt künstlich, mehr Room-Reverb bei kurzer Decay-Zeit.",clap,space_naturalness,curated_seed,de,synthetic_or_curated_example
+seed_027,"Lead-Synth sticht zu stark heraus, Sidechain von Vocal auf Synth.",synth,masking,curated_seed,de,synthetic_or_curated_example
+seed_028,"Mix-Bus Limiting zu aggressiv, Ceiling auf –0.3 dBFS zurücknehmen.",mix_bus,limiting,curated_seed,de,synthetic_or_curated_example
+seed_029,"Acoustic Guitar zu dünn, Parallel-Kompression mit hohem Ratio.",acoustic_guitar,thinness,curated_seed,de,synthetic_or_curated_example
+seed_030,"Kick zu laut im Mix, Fader um 2 dB zurücknehmen.",kick,gain_balance,curated_seed,de,synthetic_or_curated_example
+seed_031,"Snare Gate schließt zu früh, Hold-Zeit verlängern.",snare,gate_timing,curated_seed,de,synthetic_or_curated_example

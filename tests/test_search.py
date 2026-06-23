@@ -81,3 +81,22 @@ def test_search_parametrized_queries(
 ) -> None:
     results = engine.query(query, top_k=5)
     assert any(result.doc_id in expected_ids for result in results)
+
+
+@pytest.mark.unit
+def test_engine_respects_explicit_empty_corpus() -> None:
+    empty_engine = SemanticSearchEngine([])
+    assert empty_engine.documents == []
+    assert empty_engine.query("any", top_k=3) == []
+
+
+@pytest.mark.unit
+def test_engine_uses_custom_document_ids() -> None:
+    docs = [
+        {"id": "kick", "text": "Kick ist zu laut."},
+        {"doc_id": "snare", "text": "Snare braucht mehr Körper."},
+    ]
+    engine = SemanticSearchEngine(docs)
+    results = engine.query("Snare", top_k=2)
+    assert {result.doc_id for result in results} <= {"kick", "snare"}
+    assert results[0].doc_id in {"kick", "snare"}

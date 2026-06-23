@@ -17,16 +17,70 @@ import time
 import logging
 import contextlib
 import sys, warnings
+import subprocess
+import uuid
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 import pandas as pd
 import streamlit as st
-from rapidfuzz import fuzz
 from sklearn.feature_extraction.text import TfidfVectorizer
 import importlib.util
 from collections import defaultdict
+
+from assistant_summary import ResponseSummarizer
+from audio_analysis import analyze_wav_bytes
+from data_ingestion import load_forum_corpus_texts
+from feedback import FeedbackEntry, FeedbackStore
+from personal_presets import PersonalPreset, PersonalPresetLibrary
+from preset_advisor.search import SearchResult
+
+try:
+    from rapidfuzz import fuzz
+except ModuleNotFoundError:
+    from difflib import SequenceMatcher
+
+    class _FallbackFuzz:
+        @staticmethod
+        def ratio(a: str, b: str) -> int:
+            return int(SequenceMatcher(None, a, b).ratio() * 100)
+
+        @staticmethod
+        def partial_ratio(a: str, b: str) -> int:
+            if not a or not b:
+                return 0
+            shorter, longer = (a, b) if len(a) <= len(b) else (b, a)
+            shorter = shorter.strip()
+            longer = longer.strip()
+            if not shorter or not longer:
+                return 0
+            if len(shorter) >= len(longer):
+                return int(SequenceMatcher(None, shorter, longer).ratio() * 100)
+            best = 0.0
+            window_size = len(shorter)
+            for start in range(0, len(longer) - window_size + 1):
+                candidate = longer[start : start + window_size]
+                best = max(best, SequenceMatcher(None, shorter, candidate).ratio())
+            return int(best * 100)
+
+        @staticmethod
+        def token_set_ratio(a: str, b: str) -> int:
+            tokens_a = set(a.lower().split())
+            tokens_b = set(b.lower().split())
+            if not tokens_a or not tokens_b:
+                return 0
+            shared = " ".join(sorted(tokens_a & tokens_b))
+            combined_a = " ".join(sorted(tokens_a))
+            combined_b = " ".join(sorted(tokens_b))
+            if shared:
+                return max(
+                    int(SequenceMatcher(None, shared, combined_a).ratio() * 100),
+                    int(SequenceMatcher(None, shared, combined_b).ratio() * 100),
+                )
+            return int(SequenceMatcher(None, combined_a, combined_b).ratio() * 100)
+
+    fuzz = _FallbackFuzz()
 
 # =============================================================================
 # CONSTANTS & CONFIGURATION
@@ -67,6 +121,23 @@ MAX_LINE_LENGTH = 120
 # Scoring Boosts
 INSTRUMENT_BOOST = {"snare": 1.15, "kick": 1.10, "vocal": 1.05, "bass": 1.05}
 FREQUENCY_PATTERN_BOOST = 1.05
+
+ROOT_DIR = Path(__file__).resolve().parents[2]
+DATA_DIR = ROOT_DIR / "data"
+SAMPLE_CORPUS_PATH = DATA_DIR / "sample_corpus.json"
+PRESET_MAP_PATH = DATA_DIR / "preset_map.json"
+KEYPHRASES_PATH = DATA_DIR / "keyphrases.json"
+RULE_TAGS_PATH = DATA_DIR / "rule_tags.json"
+FEEDBACK_STORE = FeedbackStore(DATA_DIR / "feedback" / "feedback.jsonl")
+SUMMARY_SERVICE = ResponseSummarizer()
+PERSONAL_PRESETS = PersonalPresetLibrary(DATA_DIR / "personal_presets")
+
+
+def _resolve_data_path(path: Union[str, Path]) -> Path:
+    candidate = Path(path)
+    if candidate.is_absolute():
+        return candidate
+    return DATA_DIR / candidate
 
 
 
@@ -115,6 +186,8 @@ _warmup_torch_silently()
 # Page
 # -----------------------------
 st.set_page_config(page_title="Mixing Forum Analyzer", layout="wide")
+if "session_id" not in st.session_state:
+    st.session_state["session_id"] = str(uuid.uuid4())
 st.title("🎛️ Mixing Forum Analyzer — Woche 2 · Keyphrases & Tags")
 st.write("Semantische Suche (SBERT/TF‑IDF) · Preset‑Vorschläge · spaCy POS/Adjektive · **Week 2:** Keyphrases & Rule‑Tags + Export.")
 
@@ -136,24 +209,17 @@ if "mode_label" in st.session_state and "elapsed_ms" in st.session_state:
 # Data
 # -----------------------------
 @st.cache_data(show_spinner=False)
-def load_corpus() -> List[str]:
+def load_corpus(path: Union[str, Path] = SAMPLE_CORPUS_PATH) -> List[str]:
     """
-    Lädt das Mixing-Problem Korpus aus einer JSON-Datei.
+    Lädt das Forum-Korpus aus der neuen Ingestion-Schicht.
 
-    Versucht zuerst data/sample_corpus.json zu laden, verwendet bei Fehlern
-    ein Standard-Korpus mit typischen Audio-Engineering Problemen.
-
-    Returns:
-        List[str]: Liste der Mixing-Problem Beschreibungen
-
-    Raises:
-        Keine - verwendet Fallback bei Fehlern
+    Der `path`-Parameter bleibt aus Kompatibilitätsgründen erhalten,
+    wird aber zugunsten der zentralen Data-Ingestion-Pipeline ignoriert.
     """
     try:
-        with open("data/sample_corpus.json", "r", encoding="utf-8") as f:
-            data = json.load(f)
-            if isinstance(data, list) and all(isinstance(x, str) for x in data):
-                return data
+        texts = load_forum_corpus_texts(DATA_DIR)
+        if texts:
+            return texts
     except Exception:
         pass
     return [
@@ -188,9 +254,10 @@ def _normalize_preset_map(pm: Any) -> Dict[str, Any]:
     return {"schema_version": "1.0", "entries": []}
 
 @st.cache_data(show_spinner=False)
-def load_preset_map(path="data/preset_map.json"):
+def load_preset_map(path: Union[str, Path] = PRESET_MAP_PATH):
+    resolved_path = _resolve_data_path(path)
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with resolved_path.open("r", encoding="utf-8") as f:
             txt = f.read().strip()
             if not txt:
                 return _normalize_preset_map({"schema_version": "1.0", "entries": []})
@@ -205,15 +272,16 @@ preset_map = load_preset_map()
 
 # --- Week 2: Keyphrases & Rule Tags loaders ---
 @st.cache_data(show_spinner=False)
-def load_keyphrases(path: str = "data/keyphrases.json") -> Dict[str, List[str]]:
+def load_keyphrases(path: Union[str, Path] = KEYPHRASES_PATH) -> Dict[str, List[str]]:
     """
     Robust loader. Supports:
     - dict[str -> list[str]]
     - list[list[str]] aligned to corpus indices
     - list[str] (single flat list) -> returned under key "_global"
     """
+    resolved_path = _resolve_data_path(path)
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with resolved_path.open("r", encoding="utf-8") as f:
             data = json.load(f)
         if isinstance(data, dict):
             # normalize keys to str to avoid json numeric-vs-str surprises
@@ -231,7 +299,7 @@ def load_keyphrases(path: str = "data/keyphrases.json") -> Dict[str, List[str]]:
         return {}
 
 @st.cache_data(show_spinner=False)
-def load_rule_tags(path: str = "data/rule_tags.json") -> Dict[str, Dict[str, Any]]:
+def load_rule_tags(path: Union[str, Path] = RULE_TAGS_PATH) -> Dict[str, Dict[str, Any]]:
     """
     Expected shape:
     {
@@ -239,8 +307,9 @@ def load_rule_tags(path: str = "data/rule_tags.json") -> Dict[str, Dict[str, Any
       "kick_punch": {"patterns": ["kick","punch"], "tip": "Transient/Parallel-Comp"}
     }
     """
+    resolved_path = _resolve_data_path(path)
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with resolved_path.open("r", encoding="utf-8") as f:
             data = json.load(f)
         if isinstance(data, dict):
             norm: Dict[str, Dict[str, Any]] = {}
@@ -379,38 +448,71 @@ def _render_triton_warning(sidebar: bool = True) -> None:
 # -----------------------------
 # spaCy (robust + Diagnose)
 # -----------------------------
-def load_spacy():
-    """
-    Lädt das deutsche spaCy-Modell mit robuster Fallback-Logik.
+@st.cache_resource(show_spinner=False)
+def load_spacy(model_name: str = "de_core_news_sm"):
+    """Load the German spaCy model with installation fallback."""
 
-    Versucht verschiedene Lade-Methoden und speichert Fehler im Session-State.
-    Verwendet kein Streamlit-Caching um None-Werte zu vermeiden.
-
-    Returns:
-        spacy.Language | None: Geladenes spaCy-Modell oder None bei Fehlern
-    """
-    """Robuste spaCy-Ladelogik ohne Caching (vermeidet 'None' im Cache)."""
     try:
         import spacy
         import spacy.util as spacy_util  # type: ignore
+    except Exception as exc:
+        st.session_state["spacy_error"] = f"spaCy import failed: {exc}  [python: {sys.executable}]"
+        return None
 
-        if importlib.util.find_spec("de_core_news_sm") is not None:
-            import de_core_news_sm  # type: ignore
-            nlp = de_core_news_sm.load()
-            st.session_state.pop("spacy_error", None)
-            return nlp
+    def _try_load() -> Optional["spacy.Language"]:
+        try:
+            return spacy.load(model_name)
+        except OSError:
+            pass
+        except Exception as load_exc:
+            st.session_state["spacy_error"] = f"spaCy load failed: {load_exc}"
+            return None
+        package_name = model_name.replace("-", "_")
+        try:
+            module = importlib.import_module(package_name)
+            if hasattr(module, "load"):
+                return module.load()  # type: ignore[call-arg]
+        except Exception:
+            return None
+        return None
 
-        if getattr(spacy_util, "is_package", None) and spacy_util.is_package("de_core_news_sm"):
-            nlp = spacy.load("de_core_news_sm")
-            st.session_state.pop("spacy_error", None)
-            return nlp
-
-        nlp = spacy.load("de_core_news_sm")
+    nlp = _try_load()
+    if nlp is not None:
         st.session_state.pop("spacy_error", None)
         return nlp
-    except Exception as e:
-        st.session_state["spacy_error"] = f"{e}  [python: {sys.executable}]"
+
+    try:
+        if getattr(spacy_util, "is_package", None) and spacy_util.is_package(model_name):
+            nlp = _try_load()
+            if nlp is not None:
+                st.session_state.pop("spacy_error", None)
+                return nlp
+    except Exception:
+        pass
+
+    try:
+        subprocess.run(
+            [sys.executable, "-m", "spacy", "download", model_name],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+    except subprocess.CalledProcessError as install_err:
+        msg = install_err.stderr.strip() or install_err.stdout.strip() or str(install_err)
+        st.session_state["spacy_error"] = f"spaCy download failed: {msg}"
         return None
+    except Exception as install_exc:
+        st.session_state["spacy_error"] = f"spaCy download error: {install_exc}"
+        return None
+
+    nlp = _try_load()
+    if nlp is None:
+        st.session_state["spacy_error"] = f"spaCy model '{model_name}' not available after download."
+        return None
+
+    st.session_state.pop("spacy_error", None)
+    return nlp
 
 def spacy_diagnostics() -> Dict[str, Any]:
     info: Dict[str, Any] = {}
@@ -594,6 +696,12 @@ if use_semantics and _detect_triton_conflict():
 k = st.sidebar.slider("Anzahl Treffer", min_value=MIN_RESULTS, max_value=MAX_RESULTS, value=DEFAULT_MAX_RESULTS)
 show_explanations = st.sidebar.checkbox("Erklärungen anzeigen (Lemma-Overlap)", value=True)
 show_overlap_chart = st.sidebar.checkbox("Mini-Bar-Chart anzeigen", value=True)
+show_ai_summary = st.sidebar.checkbox("Assistant-Zusammenfassung", value=True)
+use_llm_summary = st.sidebar.checkbox(
+    "LLM nutzen, falls API-Key vorhanden",
+    value=False,
+    help="Ohne OPENAI_API_KEY nutzt die App automatisch eine lokale Regel-Zusammenfassung.",
+)
 
 # Demo-GIF
 with st.sidebar.expander("🎥 Demo (30 Sek.)", expanded=False):
@@ -728,6 +836,10 @@ with col1:
 
             df = pd.DataFrame({"Ähnlichkeit": [round(scored[j][0], 3) for j in range(k_eff)],
                                "Post": [corpus[i] for i in top_idx]})
+            search_results = [
+                SearchResult(doc_id=f"corpus_{i}", text=corpus[i], score=float(scored[r][0]))
+                for r, i in enumerate(top_idx)
+            ]
             st.subheader(f"Top {k_eff} ähnliche Posts")
             st.dataframe(df, use_container_width=True)
             st.caption(f"⏱️ {mode_label} · Berechnungszeit: {elapsed_ms:.0f} ms")
@@ -760,9 +872,52 @@ with col1:
                 results_json["presets"] = []
                 st.caption("Keine direkten Vorschläge – Formulierung verfeinern (z. B. 'snare boxig', 'bass maskiert kick').")
 
+            if show_ai_summary:
+                summary = SUMMARY_SERVICE.summarize(
+                    query=q,
+                    results=search_results,
+                    presets=recs,
+                    use_llm=use_llm_summary,
+                )
+                results_json["summary"] = summary.to_record()
+                st.subheader("Assistant-Zusammenfassung")
+                st.write(summary.answer)
+                if summary.action_steps:
+                    st.markdown("**Nächste Mixing-Schritte**")
+                    for step in summary.action_steps:
+                        st.markdown(f"- {step}")
+                st.caption(f"Summary-Modus: {summary.mode} · Modell: {summary.model}")
+
             st.download_button("JSON downloaden",
                                data=json.dumps(results_json, ensure_ascii=False, indent=2).encode("utf-8"),
                                file_name="last_query_results.json", mime="application/json")
+
+            with st.form("feedback_form"):
+                st.subheader("Feedback")
+                feedback_rating = st.slider("Qualität der Antwort", min_value=1, max_value=5, value=4)
+                feedback_comment = st.text_area("Kommentar", placeholder="Was war hilfreich oder falsch?", height=80)
+                feedback_type = st.selectbox("Feedback-Typ", ["search", "preset", "summary"], index=0)
+                submitted = st.form_submit_button("Feedback speichern")
+                if submitted:
+                    try:
+                        entry = FEEDBACK_STORE.append(
+                            FeedbackEntry(
+                                query=q,
+                                rating=feedback_rating,
+                                comment=feedback_comment,
+                                result_doc_ids=tuple(result.doc_id for result in search_results),
+                                feedback_type=feedback_type,
+                                session_id=st.session_state["session_id"],
+                                metadata={
+                                    "mode": mode_label,
+                                    "elapsed_ms": round(elapsed_ms, 1),
+                                    "preset_level": preset_level,
+                                },
+                            )
+                        )
+                        st.success(f"Feedback gespeichert: {entry.entry_id}")
+                    except ValueError as exc:
+                        st.error(str(exc))
 
             # --- Week 2: Keyphrases & Tags (Expander) ---
             with st.expander("🔖 Keyphrases & Tags (Week 2)", expanded=False):
@@ -899,3 +1054,68 @@ with col2:
             st.caption("Adjektive (Sound-Beschreibung): " + (", ".join(adjs) if adjs else "—"))
         except Exception:
             st.error("Fehler beim Rendern der spaCy-Analyse.")
+
+    st.subheader("WAV-Analyse")
+    uploaded_wav = st.file_uploader("WAV-Datei hochladen", type=["wav"])
+    if uploaded_wav is not None:
+        try:
+            audio_result = analyze_wav_bytes(uploaded_wav.read(), filename=uploaded_wav.name)
+            metrics = audio_result.to_record()
+            st.metric("Peak dBFS", metrics["peak_dbfs"])
+            st.metric("RMS dBFS", metrics["rms_dbfs"])
+            st.metric("Dauer", f"{metrics['duration_seconds']} s")
+            st.write(
+                {
+                    "sample_rate": metrics["sample_rate"],
+                    "channels": metrics["channels"],
+                    "crest_factor_db": metrics["crest_factor_db"],
+                    "dominant_frequency_hz": metrics["dominant_frequency_hz"],
+                    "clipping_samples": metrics["clipping_samples"],
+                }
+            )
+            for note in metrics["notes"]:
+                st.caption(note)
+        except ValueError as exc:
+            st.error(str(exc))
+
+    st.subheader("Persönliche Presets")
+    user_id = st.text_input("User-ID", value=st.session_state["session_id"])
+    with st.form("personal_preset_form"):
+        preset_name = st.text_input("Preset-Name", placeholder="Kick Cleanup")
+        preset_plugin = st.text_input("Plugin", placeholder="FabFilter Pro-Q 3")
+        preset_category = st.selectbox("Kategorie", ["eq", "dynamics", "saturation", "reverb", "custom"], index=0)
+        preset_description = st.text_area("Beschreibung", height=70)
+        preset_tags = st.text_input("Tags", placeholder="kick, low-end, cleanup")
+        save_preset = st.form_submit_button("Preset speichern")
+        if save_preset:
+            try:
+                preset = PERSONAL_PRESETS.add_preset(
+                    PersonalPreset(
+                        user_id=user_id,
+                        name=preset_name,
+                        plugin=preset_plugin,
+                        category=preset_category,
+                        description=preset_description,
+                        tags=tuple(tag.strip() for tag in preset_tags.split(",") if tag.strip()),
+                    )
+                )
+                st.success(f"Preset gespeichert: {preset.preset_id}")
+            except ValueError as exc:
+                st.error(str(exc))
+
+    user_presets = PERSONAL_PRESETS.list_presets(user_id)
+    if user_presets:
+        preset_df = pd.DataFrame(
+            [
+                {
+                    "Name": preset.name,
+                    "Plugin": preset.plugin,
+                    "Kategorie": preset.category,
+                    "Tags": ", ".join(preset.tags),
+                }
+                for preset in user_presets
+            ]
+        )
+        st.dataframe(preset_df, use_container_width=True)
+    else:
+        st.caption("Noch keine persönlichen Presets gespeichert.")
