@@ -2,7 +2,7 @@
 
 # Mixing Forum Analyzer
 
-Semantic search and assistant tooling for recurring audio mixing problems.
+Mixing Forum Analyzer (MFA) is a local-first prototype for searching, analyzing, and summarizing recurring audio mixing problems. It combines a curated demo knowledge base, TF-IDF/SBERT retrieval, rule-based preset guidance, assistant-style summaries, basic WAV analysis, feedback capture, personal preset storage, and API access primitives.
 
 [![CI/CD](https://github.com/steme855/mixing-forum-analyzer/actions/workflows/test_and_deploy.yml/badge.svg)](https://github.com/steme855/mixing-forum-analyzer/actions/workflows/test_and_deploy.yml)
 [![Tests](https://github.com/steme855/mixing-forum-analyzer/actions/workflows/test_only.yml/badge.svg)](https://github.com/steme855/mixing-forum-analyzer/actions/workflows/test_only.yml)
@@ -10,14 +10,14 @@ Semantic search and assistant tooling for recurring audio mixing problems.
 [![License: MIT](https://img.shields.io/github/license/steme855/mixing-forum-analyzer.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11-blue?logo=python)](pyproject.toml)
 
-Mixing Forum Analyzer, or MFA, helps audio engineers search a curated knowledge base of mixing forum posts, compare similar cases, and turn common problems into practical preset or processing suggestions. It is currently a local Streamlit and FastAPI project with hybrid search, evaluation utilities, feedback capture, assistant summaries, WAV analysis, personal preset storage, and an API-key foundation.
+MFA is useful for:
 
-The project is useful for:
+- audio engineers who want to find similar mix-problem cases faster
+- developers building retrieval and assistant workflows for music-production domains
+- educators and creators testing local knowledge-base workflows for mixing advice
+- SaaS/API evaluators assessing whether the project can become a productized mixing assistant
 
-- audio engineers who want faster access to similar mixing cases
-- developers building retrieval and assistant workflows for audio domains
-- users testing a lightweight mixing support tool locally
-- SaaS/API evaluators assessing whether this can become a productized mixing assistant
+The repository is a prototype. It does not claim production-grade retrieval quality, production billing, licensed large-scale forum coverage, or finished DAW/VST integration.
 
 ## Demo
 
@@ -29,10 +29,10 @@ The project is useful for:
 | ---- | ---------------------- |
 | Search | TF-IDF search with optional SBERT embeddings via `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`. |
 | Corpus ingestion | `src/data_ingestion/` normalizes JSON, JSONL/NDJSON, and CSV forum exports into a deduplicated knowledge base. |
-| Preset coach | `presets/preset_recommender.py` maps textual symptoms to EQ, dynamics, and gain suggestions using rules. |
+| Preset coach | `presets/preset_recommender.py` maps textual symptoms to EQ, dynamics, and gain suggestions using deterministic rules. |
 | Assistant summaries | `src/assistant_summary/` creates concise answers from search evidence, with optional OpenAI API usage and a deterministic local fallback. |
-| Feedback | `src/feedback/` stores search, preset, and summary ratings in append-only JSONL. |
-| WAV analysis | `src/audio_analysis/` analyzes PCM WAV uploads for peak, RMS, crest factor, clipping samples, silence ratio, and dominant frequency. |
+| Feedback | `src/feedback/` stores search, preset, and summary ratings in append-only JSONL files. |
+| WAV analysis | `src/audio_analysis/` analyzes PCM WAV uploads for peak level, RMS, crest factor, clipping samples, silence ratio, and dominant frequency. |
 | Personal presets | `src/personal_presets/` stores user-owned preset libraries as local JSON files. |
 | API access foundation | `src/api_access/` issues hashed API keys and tracks quota usage for protected API routes. |
 | Evaluation | `evaluation/metrics.py` calculates MRR, top-k accuracy, latency summaries, and similarity distributions. |
@@ -40,8 +40,8 @@ The project is useful for:
 ## Quickstart
 
 ```bash
-git clone https://github.com/steme855/MFA.git
-cd MFA/mixing-forum-analyzer
+git clone https://github.com/steme855/mixing-forum-analyzer.git
+cd mixing-forum-analyzer
 
 python3 -m venv .venv
 source .venv/bin/activate
@@ -56,13 +56,20 @@ streamlit run app.py
 On Windows PowerShell:
 
 ```powershell
+git clone https://github.com/steme855/mixing-forum-analyzer.git
+cd mixing-forum-analyzer
+
 python -m venv .venv
 .venv\Scripts\Activate.ps1
+
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 python -m spacy download de_core_news_sm
+
 streamlit run app.py
 ```
+
+The current demo still uses a German spaCy model because parts of the original prototype and sample corpus include German-language mixing phrases.
 
 ## API Usage
 
@@ -77,15 +84,15 @@ Run a basic search:
 ```bash
 curl -X POST http://127.0.0.1:8000/analyze \
   -H "Content-Type: application/json" \
-  -d '{"text":"Kick zu laut im Mix","top_k":5,"use_sbert":false}'
+  -d '{"text":"The kick drum is too loud in the mix","top_k":5,"use_sbert":false}'
 ```
 
-Request a search with assistant summary:
+Request a search with an assistant summary:
 
 ```bash
 curl -X POST http://127.0.0.1:8000/analyze \
   -H "Content-Type: application/json" \
-  -d '{"text":"S-Laute sind zu scharf","top_k":5,"include_summary":true,"use_llm":false}'
+  -d '{"text":"The vocal sibilance sounds too harsh","top_k":5,"include_summary":true,"use_llm":false}'
 ```
 
 Analyze a WAV file:
@@ -107,14 +114,14 @@ curl -X POST http://127.0.0.1:8000/api-keys \
 curl -X POST http://127.0.0.1:8000/v1/analyze \
   -H "Content-Type: application/json" \
   -H "x-api-key: <returned-api-key>" \
-  -d '{"text":"Bass maskiert Kick","top_k":5}'
+  -d '{"text":"The bass is masking the kick drum","top_k":5}'
 ```
 
 ## Development Commands
 
 ```bash
-make install       # install production dependencies
-make dev-install   # install production and development dependencies
+make install       # install runtime dependencies
+make dev-install   # install runtime and development dependencies
 make lint          # flake8, black --check, isort --check-only
 make format        # black and isort
 make test          # pytest
@@ -146,7 +153,7 @@ mixing-forum-analyzer/
 ├── src/
 │   ├── app/main.py                # Streamlit UI
 │   ├── api_access/                # API keys and quota accounting
-│   ├── assistant_summary/         # LLM summary wrapper with local fallback
+│   ├── assistant_summary/         # summary wrapper with local fallback
 │   ├── audio_analysis/            # PCM WAV metrics
 │   ├── data_ingestion/            # corpus normalization and deduplication
 │   ├── feedback/                  # feedback storage
@@ -158,25 +165,25 @@ mixing-forum-analyzer/
 ### Data Flow
 
 1. Forum data is loaded from `data/sample_corpus.json`, `data/processed/`, and future `data/raw/` exports.
-2. `src/data_ingestion/` normalizes records, attaches available metadata, and deduplicates texts.
-3. `src/preset_advisor/search.py` indexes the corpus with TF-IDF and optionally SBERT.
-4. Streamlit and FastAPI call the same search and assistant modules.
-5. Feedback, user presets, API-key usage, and audio analysis outputs are stored locally for MVP workflows.
+2. `src/data_ingestion/` normalizes records, attaches available metadata, and deduplicates text entries.
+3. `src/preset_advisor/search.py` indexes the corpus with TF-IDF and optional SBERT.
+4. Streamlit and FastAPI call the same search, summary, feedback, audio-analysis, and preset modules.
+5. Feedback, user presets, API-key usage, and audio-analysis outputs are stored locally for MVP workflows.
 
 ## Search Backends
 
 | Aspect | TF-IDF | SBERT |
 | ------ | ------ | ----- |
-| Dependency profile | Lightweight, deterministic | Requires `sentence-transformers` model load |
-| Best use case | Short keyword-like problems and offline mode | More flexible natural-language phrasing |
+| Dependency profile | Lightweight and deterministic | Requires loading a `sentence-transformers` model |
+| Best use case | Short keyword-style problems and offline mode | More flexible natural-language phrasing |
 | Index input | Ingested forum texts | Ingested forum texts |
 | Scoring | Cosine similarity in TF-IDF space | Cosine similarity over normalized embeddings |
 
-SBERT is optional. If the model cannot be loaded, the application can still operate with TF-IDF.
+SBERT is optional at runtime. If the embedding model cannot be loaded, MFA can still operate with TF-IDF.
 
 ## Evaluation
 
-The current benchmark is based on 29 queries from `notebooks/02_evaluation.ipynb`. Reported ranking metrics are useful for regression checks on the small curated benchmark, but they should not be interpreted as proof of production-level retrieval quality.
+The current benchmark is based on 29 queries from `notebooks/02_evaluation.ipynb`. The reported ranking metrics are useful for regression checks on the small curated benchmark, but they should not be interpreted as proof of production-level retrieval quality.
 
 | Metric | Current value | Benchmark target |
 | ------ | ------------: | ---------------- |
@@ -196,7 +203,7 @@ Recommended next evaluation steps:
 
 ## Business Value
 
-MFA targets a practical workflow problem: engineers often search old forum threads for recurring issues such as harsh vocals, masking between kick and bass, boxy snares, or over-compressed mix buses. The project can reduce manual browsing when the knowledge base contains similar cases and when the retrieved suggestions fit the session context.
+MFA targets a practical workflow problem: engineers often search old forum threads for recurring issues such as harsh vocals, kick/bass masking, boxy drums, dull vocals, or over-compressed mix buses. The project can reduce manual browsing when the knowledge base contains similar cases and when the retrieved suggestions fit the session context.
 
 The business case is strongest where MFA becomes:
 
@@ -205,7 +212,7 @@ The business case is strongest where MFA becomes:
 - an API layer for audio tools, education products, or studio workflows
 - a bridge between text-based mix diagnosis and preset or DAW automation
 
-This README intentionally avoids unverified time-savings, revenue claims, or production-readiness claims.
+This README intentionally avoids unverified time-savings, revenue claims, and production-readiness claims.
 
 ## Data and Compliance Notes
 
@@ -213,10 +220,11 @@ See `data/README.md` for the current data structure, source notes, and preproces
 
 Important limitations:
 
-- the repository currently includes a small curated sample corpus
-- future large-scale forum ingestion needs source-specific license review
+- the repository currently includes a small curated sample corpus and seed data
+- future large-scale forum ingestion needs source-specific license and terms review
 - runtime feedback, API-key data, and personal presets can contain user-specific data and are ignored by git
-- WAV analysis currently supports PCM WAV analysis, not full stem separation or perceptual mix critique
+- WAV analysis currently supports PCM WAV metrics, not stem separation or perceptual mix critique
+- optional LLM summaries should be evaluated for grounding, safety, and source attribution before production use
 
 ## Roadmap
 
@@ -227,9 +235,9 @@ The following items are roadmap or production-hardening work unless explicitly l
 | Larger forum dataset | Move from sample and processed demo data to a larger, licensed, source-tracked knowledge base. |
 | User feedback system | Use collected ratings to improve ranking, preset suggestions, and summary quality. |
 | LLM answer summaries | Improve prompt design, source grounding, evaluation, and safety controls for generated mixing advice. |
-| WAV upload audio analysis | Extend basic PCM metrics toward richer audio diagnostics and better UI interpretation. |
+| WAV upload audio analysis | Extend basic PCM metrics toward richer audio diagnostics and clearer UI interpretation. |
 | Personal preset libraries | Add account-backed storage, import/export, tagging, and retrieval against user context. |
-| API monetization | Replace local JSON key storage with production auth, billing, plan limits, abuse controls, and analytics. |
+| API monetization | Replace local JSON key storage with production authentication, billing, plan limits, abuse controls, and analytics. |
 | DAW/VST integration | Define plugin-facing schemas and sync workflows for DAW sessions, presets, and assistant recommendations. |
 
 ## Project Links
