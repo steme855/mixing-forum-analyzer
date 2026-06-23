@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "dataset_id": "mfa_seed_mixing_forum_corpus",
+  "dataset_type": "curated_seed_dataset",
+  "language": "de",
+  "description": "Small curated seed dataset for local demos, tests, and ingestion validation. It is not a full forum crawl.",
+  "license_status": "synthetic_or_curated_examples_only",
+  "documents": {
+    "sample_corpus_json": "sample_corpus.json",
+    "raw_seed_jsonl": "raw/seed_forum_posts.jsonl",
+    "processed_corpus_csv": "processed/corpus.csv",
+    "clusters_csv": "processed/clusters.csv",
+    "keyphrases_csv": "processed/keyphrases.csv",
+    "relevance_pairs_csv": "processed/relevance_pairs.csv"
+  },
+  "counts": {
+    "sample_corpus_documents": 32,
+    "processed_corpus_documents": 32,
+    "benchmark_queries": 29
+  },
+  "intended_use": [
+    "streamlit_demo",
+    "api_smoke_tests",
+    "search_regression_tests",
+    "preset_mapping_examples",
+    "ingestion_pipeline_validation"
+  ],
+  "not_intended_use": [
+    "production_retrieval_quality_claims",
+    "commercial_forum_redistribution",
+    "large_scale_benchmarking"
+  ],
+  "notes": [
+    "Runtime feedback, personal presets, API keys, and embeddings are generated locally and are not included as static dataset records.",
+    "Large forum crawls should be added only after source-specific license and privacy review."
+  ]
+}

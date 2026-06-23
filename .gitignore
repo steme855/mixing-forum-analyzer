@@ -1,12 +1,9 @@
-# =============================================================================
-# Mixing Forum Analyzer - Git Ignore Patterns
-# =============================================================================
-
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+*.pyd
 .Python
 build/
 develop-eggs/
@@ -20,66 +17,79 @@ parts/
 sdist/
 var/
 wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
 
-# Virtual Environments
-venv/
+# Virtual environments
+.env
+.venv
 env/
+venv/
 ENV/
 env.bak/
 venv.bak/
-.venv/
 
-# IDEs & Editors
-.vscode/
+# IDE
 .idea/
-*.swp
-*.swo
-*~
-.DS_Store
-Thumbs.db
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_meta
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+*.coverage
 
 # Streamlit
 .streamlit/
 
-# Jupyter Notebooks
-.ipynb_checkpoints/
-*.ipynb
-
-# ML Models & Data (außer samples)
+# HuggingFace / Model cache
+.cache/
 models/
-*.pkl
-*.joblib
-*.model
-data/full_corpus/
-!data/sample_corpus.json
+*.bin
+*.pt
+*.pth
+*.safetensors
 
-# Logs & Debugging
-*.log
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-
-# OS & System
+# OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
-desktop.ini
 
-# Docker
-.dockerignore
-
-# Environment Variables
-.env
-.env.local
-.env.production
-
-# Temporary Files
-tmp/
-temp/
-*.tmp
-*.bak
-*.orig
+# Data outputs (behalte Seed-Daten, ignoriere generierte/runtime Outputs)
+data/raw/**/*.html
+data/raw/**/*.htm
+data/raw/**/*.zip
+data/raw/**/*.tar
+data/raw/**/*.gz
+data/processed/last_search.json
+data/processed/kvr_pilot_corpus.csv
+data/raw/kvr_pilot_crawl.jsonl
+data/raw/kvr_pilot_manifest.json
+data/embeddings/**/*.npy
+data/embeddings/**/*.npz
+data/embeddings/**/*.pkl
+data/embeddings/**/*.joblib
+data/feedback/*.jsonl
+data/personal_presets/*.json
+data/api_keys/*.json
+data/api_keys/*.jsonl
+*.log

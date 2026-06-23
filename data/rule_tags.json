@@ -1,0 +1,34 @@
+{
+  "sibilance": {
+    "patterns": ["s-laut", "s-laute", "zisch", "sibil", "de-esser", "zischlaut"],
+    "tip": "De-Esser bei 6–8 kHz einsetzen, Reduction 3–6 dB"
+  },
+  "kick_punch": {
+    "patterns": ["kick", "kickdrum", "punch", "bassdrum", "sub-bass"],
+    "tip": "Transient-Designer oder Parallel-Kompressor für mehr Attack"
+  },
+  "snare_harsh": {
+    "patterns": ["snare", "harsch", "scharf", "rimshot"],
+    "tip": "Bell-EQ bei 6–10 kHz um 2–5 dB absenken"
+  },
+  "bass_masking": {
+    "patterns": ["bass", "maskiert", "sidechain", "verdeckt", "überlagert"],
+    "tip": "Sidechain-Kompressor: Kick triggert Bass, 2–5 dB Ducking"
+  },
+  "vocal_nasal": {
+    "patterns": ["nasal", "boxig", "vocal", "gesang", "vox", "800 hz"],
+    "tip": "Bell-EQ bei 800 Hz um 2–4 dB absenken, 3 kHz leicht anheben"
+  },
+  "frequency_mud": {
+    "patterns": ["mulmig", "muddy", "dumpf", "mittig", "300 hz", "400 hz"],
+    "tip": "High-Pass-Filter oder Bell-Cut bei 300–500 Hz einsetzen"
+  },
+  "dynamics": {
+    "patterns": ["kompressor", "pumpt", "limiting", "transient", "ratio"],
+    "tip": "Attack/Release anpassen – zu schneller Attack tötet den Transient"
+  },
+  "stereo_width": {
+    "patterns": ["mono", "stereo", "width", "widener", "panning"],
+    "tip": "Stereo-Widener sanft einsetzen, Bass immer in Mono behalten"
+  }
+}

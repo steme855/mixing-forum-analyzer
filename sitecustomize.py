@@ -1,10 +1,12 @@
-"""Runtime helpers to provide graceful fallbacks for optional dependencies.
+"""Runtime-Stubs für optionale Abhängigkeiten.
 
-This module is imported automatically by Python (see :mod:`site`) which lets
-us register minimal stub implementations for heavy optional packages when they
-are not installed in the current environment. The goal is to keep the demo
-usable and the test-suite green without enforcing massive installs such as
-PyTorch on the evaluation CI.
+Wird von Python automatisch beim Start importiert (via :mod:`site`) wenn
+dieses Verzeichnis im sys.path liegt. Registriert leichtgewichtige Stub-
+Implementierungen für schwere Pakete (torch, sentence_transformers, spaCy),
+sodass Demo und Test-Suite ohne vollständige ML-Installation funktionieren.
+
+Hinweis: In pytest wird diese Datei über conftest.py explizit importiert,
+da sitecustomize.py nur im sys.path-Root automatisch geladen wird.
 """
 
 from __future__ import annotations
@@ -15,6 +17,7 @@ from types import ModuleType
 
 
 def _install_sentence_transformers_stub() -> None:
+    """Installiert einen BoW-basierten Stub wenn sentence_transformers fehlt."""
     try:
         importlib.import_module("sentence_transformers")
         return
@@ -29,9 +32,8 @@ def _install_sentence_transformers_stub() -> None:
 
     module = ModuleType("sentence_transformers")
     module.__doc__ = (
-        "Lightweight stub for sentence_transformers used for local testing. "
-        "Provides a minimal SentenceTransformer API that falls back to a "
-        "bag-of-words embedding."
+        "Leichtgewichtiger sentence_transformers-Stub für lokale Tests. "
+        "Bildet die encode()-API nach mit Bag-of-Words-Vektoren."
     )
 
     _word_pattern = re.compile(r"\w+", re.UNICODE)
@@ -40,14 +42,21 @@ def _install_sentence_transformers_stub() -> None:
         return _word_pattern.findall(text.lower())
 
     class SentenceTransformer:
-        """Tiny replacement that mimics the encode API with bag-of-words."""
+        """Minimaler Ersatz – mimikt encode() mit BoW (sentence-transformers >=3.x API)."""
 
-        def __init__(self, model_name: str | None = None, device: str = "cpu", **_: object) -> None:
+        def __init__(
+            self,
+            model_name: str | None = None,
+            device: str = "cpu",
+            **_: object,
+        ) -> None:
             self.model_name = model_name or "stub-bow-model"
             self.device = device
             self._token_index: dict[str, int] = {}
 
-        def _ensure_iterable(self, sentences: str | Sequence[str] | Iterable[str]) -> list[str]:
+        def _ensure_iterable(
+            self, sentences: str | Sequence[str] | Iterable[str]
+        ) -> list[str]:
             if isinstance(sentences, str):
                 return [sentences]
             return list(sentences)
@@ -57,11 +66,14 @@ def _install_sentence_transformers_stub() -> None:
             sentences: str | Sequence[str] | Iterable[str],
             *,
             normalize_embeddings: bool = False,
-            **_: object,
+            show_progress_bar: bool = False,
+            # convert_to_numpy wurde in >=3.x entfernt – ignorieren via **kwargs
+            **_kwargs: object,
         ) -> np.ndarray:
+            """Gibt ein np.ndarray zurück (kompatibel mit sentence-transformers >=3.x)."""
             rows = self._ensure_iterable(sentences)
             if not rows:
-                return np.zeros((0, len(self._token_index)), dtype=np.float32)
+                return np.zeros((0, max(len(self._token_index), 1)), dtype=np.float32)
 
             docs = [Counter(_tokenize(r)) for r in rows]
             for doc in docs:
@@ -70,7 +82,7 @@ def _install_sentence_transformers_stub() -> None:
                         self._token_index[token] = len(self._token_index)
 
             if not self._token_index:
-                return np.zeros((len(rows), 0), dtype=np.float32)
+                return np.zeros((len(rows), 1), dtype=np.float32)
 
             matrix = np.zeros((len(rows), len(self._token_index)), dtype=np.float32)
             for row_idx, doc in enumerate(docs):
@@ -85,13 +97,13 @@ def _install_sentence_transformers_stub() -> None:
 
             return matrix
 
-    module.SentenceTransformer = SentenceTransformer
+    module.SentenceTransformer = SentenceTransformer  # type: ignore[attr-defined]
     module.__all__ = ["SentenceTransformer"]
-
     sys.modules["sentence_transformers"] = module
 
 
 def _install_spacy_stub() -> None:
+    """Installiert einen minimalen spaCy-Stub wenn spaCy fehlt."""
     try:
         importlib.import_module("spacy")
         return
@@ -101,11 +113,15 @@ def _install_spacy_stub() -> None:
     from typing import Iterable, Iterator
 
     module = ModuleType("spacy")
-    module.__doc__ = "Ultra-light spaCy stub used for environments without the real package."
-    module.__version__ = "0.0-stub"
-    module.__file__ = __file__
+    module.__doc__ = "Ultra-leichter spaCy-Stub für Umgebungen ohne echtes spaCy."
+    module.__version__ = "0.0-stub"  # type: ignore[attr-defined]
+    module.__file__ = __file__  # type: ignore[attr-defined]
 
     class Token:
+        is_stop: bool = False
+        is_punct: bool = False
+        like_num: bool = False
+
         def __init__(self, text: str) -> None:
             self.text = text
             self.lemma_ = text.lower()
@@ -145,19 +161,20 @@ def _install_spacy_stub() -> None:
     util_module = ModuleType("spacy.util")
     util_module.is_package = lambda _: False  # type: ignore[attr-defined]
 
-    module.Token = Token
-    module.Doc = Doc
-    module.Language = Language
-    module.load = load
-    module.blank = blank
-    module.util = util_module
-    module.__all__ = ["Token", "Doc", "Language", "load", "blank", "util"]
+    module.Token = Token  # type: ignore[attr-defined]
+    module.Doc = Doc  # type: ignore[attr-defined]
+    module.Language = Language  # type: ignore[attr-defined]
+    module.load = load  # type: ignore[attr-defined]
+    module.blank = blank  # type: ignore[attr-defined]
+    module.util = util_module  # type: ignore[attr-defined]
+    module.__all__ = ["Token", "Doc", "Language", "load", "blank", "util"]  # type: ignore[attr-defined]
 
     sys.modules["spacy"] = module
     sys.modules["spacy.util"] = util_module
 
 
 def _install_torch_stub() -> None:
+    """Installiert einen minimalen PyTorch-Stub wenn torch fehlt."""
     try:
         importlib.import_module("torch")
         return
@@ -170,12 +187,12 @@ def _install_torch_stub() -> None:
 
     module = ModuleType("torch")
     module.__doc__ = (
-        "Minimal PyTorch stub backed by NumPy for sum/isfinite/allclose calls. "
-        "Only the tiny subset used in smoke tests is implemented."
+        "Minimaler PyTorch-Stub auf NumPy-Basis für Smoke-Tests. "
+        "Nur das kleine Subset für sum/isfinite/allclose ist implementiert."
     )
 
     class Tensor:
-        """Very small tensor wrapper over numpy arrays."""
+        """Kleiner Tensor-Wrapper über np.ndarray."""
 
         def __init__(self, data: Any, dtype: Any | None = None) -> None:
             if isinstance(data, Tensor):
@@ -227,16 +244,12 @@ def _install_torch_stub() -> None:
         arr_b = np.asarray(b)
         return bool(np.allclose(arr_a, arr_b, rtol=rtol, atol=atol))
 
-    def float32(value: Any) -> np.float32:
-        return np.float32(value)
-
-    module.Tensor = Tensor
-    module.tensor = tensor
-    module.isfinite = isfinite
-    module.allclose = allclose
-    module.float32 = np.float32
-    module.__all__ = ["Tensor", "tensor", "isfinite", "allclose", "float32"]
-
+    module.Tensor = Tensor  # type: ignore[attr-defined]
+    module.tensor = tensor  # type: ignore[attr-defined]
+    module.isfinite = isfinite  # type: ignore[attr-defined]
+    module.allclose = allclose  # type: ignore[attr-defined]
+    module.float32 = np.float32  # type: ignore[attr-defined]
+    module.__all__ = ["Tensor", "tensor", "isfinite", "allclose", "float32"]  # type: ignore[attr-defined]
     sys.modules["torch"] = module
 
 

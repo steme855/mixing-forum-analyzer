@@ -1,0 +1,30 @@
+query_id,query,relevant_doc_ids,primary_issue
+q001,"Kick zu laut","seed_030",gain_balance
+q002,"Kick ist zu laut im Mix","seed_030",gain_balance
+q003,"Kick verliert Punch","seed_010|seed_021|seed_003",punch
+q004,"Kick zu weich","seed_010|seed_021",punch
+q005,"Kick braucht Attack","seed_021|seed_010",transient
+q006,"Bass maskiert Kick","seed_008|seed_019",masking
+q007,"Sidechain Bass von Kick","seed_019|seed_008",sidechain
+q008,"Sub-Bass maskiert Mix","seed_008|seed_017",masking
+q009,"Bass klingt boomig","seed_017",boominess
+q010,"Snare braucht mehr Body","seed_022",body
+q011,"Snare klingt boxig","seed_009",boxiness
+q012,"Snare klingt harsch","seed_002|seed_004|seed_018",harshness
+q013,"Snare Reverb zu lang","seed_014",reverb_decay
+q014,"Snare Gate schließt zu früh","seed_031",gate_timing
+q015,"Vocals nasal 800 Hz","seed_007",nasal_mids
+q016,"Vocals sitzen hinten","seed_001",presence
+q017,"Vocals zu präsent","seed_011",presence_control
+q018,"Gesang S-Laute scharf","seed_005",sibilance
+q019,"De-Esser vor Kompressor","seed_005",sibilance
+q020,"Gitarren maskieren Vocals","seed_015",masking
+q021,"Gitarren klingen nasal","seed_007",nasal_mids
+q022,"Hi-Hats zu scharf","seed_004|seed_018",harsh_highs
+q023,"Hi-Hats brauchen Shimmer","seed_024",air
+q024,"Mix klingt dumpf","seed_013",dull_mix
+q025,"Kompressor pumpt zu stark","seed_016|seed_000",compression_pumping
+q026,"Mix-Bus Limiting aggressiv","seed_028",limiting
+q027,"Pad klingt mono","seed_025",stereo_width
+q028,"Clap klingt künstlich","seed_026",space_naturalness
+q029,"Acoustic Guitar zu dünn","seed_029|seed_023",thinness

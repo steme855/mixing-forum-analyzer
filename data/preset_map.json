@@ -1,23 +1,111 @@
 {
   "schema_version": "1.0",
-  "snare": [
-    "EQ: 200 Hz -3 dB, Q 1.2",
-    "Transient Designer: Attack leicht erhoehen"
-  ],
-  "kick": [
-    "Parallel Kompression 4:1, Blend 30%",
-    "EQ: 4 kHz +2 dB fuer mehr Attack"
-  ],
-  "vocals": [
-    "De-Esser bei 7 kHz, 4 dB Reduktion",
-    "EQ: 3 kHz +1.5 dB fuer Praesenz"
-  ],
-  "bass": [
-    "Sidechain Kompressor von Kick, 2 dB Ducking",
-    "EQ: Low-Shelf bei 80 Hz -2 dB"
-  ],
-  "_generic": [
-    "Mix Bus Glue Kompressor 2:1",
-    "Referenztrack zum Abgleich nutzen"
+  "entries": [
+    {
+      "key": "snare_harsh",
+      "aliases": ["snare harsch", "snare scharf", "snare zu laut"],
+      "actions": {
+        "conservative": [
+          {"type": "eq", "band": "bell", "freq_hz": 8000, "gain_db": -2, "q": 2.0}
+        ],
+        "standard": [
+          {"type": "eq", "band": "bell", "freq_hz": 8000, "gain_db": -3, "q": 1.5},
+          {"type": "de-esser", "position": "post_eq", "reduction_db": 4}
+        ],
+        "aggressive": [
+          {"type": "eq", "band": "bell", "freq_hz": 8000, "gain_db": -5, "q": 1.2},
+          {"type": "de-esser", "position": "post_eq", "reduction_db": 6},
+          {"type": "dynamic_eq", "freq_hz": 8000, "threshold_db": -18, "ratio": 3}
+        ]
+      }
+    },
+    {
+      "key": "kick_soft",
+      "aliases": ["kick weich", "kick kein punch", "kick zu dünn"],
+      "actions": {
+        "conservative": [
+          {"type": "transient", "mode": "attack_plus", "amount": 0.2}
+        ],
+        "standard": [
+          {"type": "transient", "mode": "attack_plus", "amount": 0.35},
+          {"type": "eq", "band": "bell", "freq_hz": 80, "gain_db": 2, "q": 1.0}
+        ],
+        "aggressive": [
+          {"type": "transient", "mode": "attack_plus", "amount": 0.5},
+          {"type": "eq", "band": "bell", "freq_hz": 80, "gain_db": 4, "q": 0.8},
+          {"type": "clipper", "amount_db": 1.5}
+        ]
+      }
+    },
+    {
+      "key": "vocal_nasal",
+      "aliases": ["vocal nasal", "gesang nasal", "vocals boxig", "800 hz absenken"],
+      "actions": {
+        "conservative": [
+          {"type": "eq", "band": "bell", "freq_hz": 800, "gain_db": -2, "q": 1.5}
+        ],
+        "standard": [
+          {"type": "eq", "band": "bell", "freq_hz": 800, "gain_db": -3, "q": 1.2},
+          {"type": "eq", "band": "bell", "freq_hz": 3000, "gain_db": 1.5, "q": 2.0}
+        ],
+        "aggressive": [
+          {"type": "dynamic_eq", "freq_hz": 800, "threshold_db": -20, "ratio": 4},
+          {"type": "eq", "band": "bell", "freq_hz": 3000, "gain_db": 2.0, "q": 1.8}
+        ]
+      }
+    },
+    {
+      "key": "sibilance",
+      "aliases": ["s-laut", "s-laute", "sibilanz", "de-esser", "zischlaut"],
+      "actions": {
+        "conservative": [
+          {"type": "de-esser", "position": "inline", "reduction_db": 3}
+        ],
+        "standard": [
+          {"type": "de-esser", "position": "inline", "reduction_db": 4},
+          {"type": "eq", "band": "bell", "freq_hz": 7000, "gain_db": -1.5, "q": 2.0}
+        ],
+        "aggressive": [
+          {"type": "de-esser", "position": "inline", "reduction_db": 6},
+          {"type": "dynamic_eq", "freq_hz": 7000, "threshold_db": -22, "ratio": 5}
+        ]
+      }
+    },
+    {
+      "key": "bass_masking",
+      "aliases": ["bass maskiert kick", "sub-bass maskierend", "sidechain bass"],
+      "actions": {
+        "conservative": [
+          {"type": "sidechain", "duck_db": 2.0, "attack_ms": 15, "release_ms": 150}
+        ],
+        "standard": [
+          {"type": "sidechain", "duck_db": 3.5, "attack_ms": 10, "release_ms": 120},
+          {"type": "hp_filter_sc", "freq_hz": 120}
+        ],
+        "aggressive": [
+          {"type": "sidechain", "duck_db": 5.0, "attack_ms": 8, "release_ms": 100},
+          {"type": "hp_filter_sc", "freq_hz": 150},
+          {"type": "eq", "band": "bell", "freq_hz": 80, "gain_db": -2, "q": 1.0}
+        ]
+      }
+    },
+    {
+      "key": "kick_boxig",
+      "aliases": ["snare boxig", "drum boxig", "300 hz", "mulmig"],
+      "actions": {
+        "conservative": [
+          {"type": "eq", "band": "bell", "freq_hz": 400, "gain_db": -2, "q": 1.5}
+        ],
+        "standard": [
+          {"type": "eq", "band": "bell", "freq_hz": 350, "gain_db": -3, "q": 1.2},
+          {"type": "parallel_comp", "ratio": 4.0, "blend": 0.25}
+        ],
+        "aggressive": [
+          {"type": "eq", "band": "bell", "freq_hz": 350, "gain_db": -5, "q": 1.0},
+          {"type": "parallel_comp", "ratio": 6.0, "blend": 0.35},
+          {"type": "transient", "mode": "attack_plus", "amount": 0.3}
+        ]
+      }
+    }
   ]
 }

@@ -1,7 +1,22 @@
 # Quellenhinweise
 
-- Gearspace Mixing & Mastering Forum Threads (IDs siehe internes Spreadsheet)
-- KVR Audio Produktforen (Equalizer, Dynamics, Mixing)
-- Reddit r/audioengineering wöchentliche Feedback-Threads
+Aktuell versioniert ist nur `seed_forum_posts.jsonl`.
 
-Alle Rohdaten werden ausschließlich für Forschungs- und Prototyping-Zwecke genutzt.
+Dieser Seed-Datensatz besteht aus kuratierten/synthetischen Mixing-Beispielen für
+Demo, Tests und lokale Evaluation. Er ist kein vollständiger Crawl aus Gearspace,
+KVR, Reddit oder anderen externen Foren.
+
+Roadmap-Quellen für spätere Erweiterungen:
+
+- Gearspace Mixing & Mastering Forum Threads
+- KVR Audio Forenbereiche zu Mixing und Effekten
+- Reddit r/audioengineering Feedback-Threads
+
+Vor Aufnahme echter Forumdaten müssen je Quelle folgende Punkte dokumentiert
+werden:
+
+- konkrete Source-URL oder Export-ID
+- Abrufdatum
+- Lizenz- oder Nutzungsstatus
+- Anonymisierung personenbezogener Daten
+- erlaubter Nutzungsumfang für Forschung, Demo oder kommerzielle Nutzung
